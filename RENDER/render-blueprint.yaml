@@ -1,0 +1,58 @@
+# Render Blueprint for Lion Elite OS n8n
+# Use this as the starting point for deploying the automation engine.
+
+services:
+  - type: web
+    name: lion-elite-n8n
+    env: docker
+    plan: starter
+    dockerfilePath: ./RENDER/n8n.Dockerfile
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: "true"
+      - key: N8N_BASIC_AUTH_USER
+        sync: false
+      - key: N8N_BASIC_AUTH_PASSWORD
+        sync: false
+      - key: N8N_ENCRYPTION_KEY
+        sync: false
+      - key: N8N_HOST
+        sync: false
+      - key: N8N_PROTOCOL
+        value: https
+      - key: WEBHOOK_URL
+        sync: false
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_DATABASE
+        fromDatabase:
+          name: lion-elite-n8n-db
+          property: database
+      - key: DB_POSTGRESDB_HOST
+        fromDatabase:
+          name: lion-elite-n8n-db
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        fromDatabase:
+          name: lion-elite-n8n-db
+          property: port
+      - key: DB_POSTGRESDB_USER
+        fromDatabase:
+          name: lion-elite-n8n-db
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromDatabase:
+          name: lion-elite-n8n-db
+          property: password
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+
+databases:
+  - name: lion-elite-n8n-db
+    plan: starter
+    databaseName: n8n
+    user: n8n
