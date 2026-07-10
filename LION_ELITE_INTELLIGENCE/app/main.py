@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
+from .activities import router as activities_router
 from .database import Base, engine, get_db
 from .models import Lead
 from .sales import router as sales_router
@@ -17,10 +18,11 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Lion Elite Intelligence",
-    version="0.3.0",
+    version="0.4.0",
     description="CRM-ready lead intelligence API for public business prospect data.",
 )
 app.include_router(sales_router)
+app.include_router(activities_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
@@ -32,7 +34,7 @@ def dashboard() -> str:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.3.0"}
+    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.4.0"}
 
 
 def find_duplicate(db: Session, data: dict) -> Lead | None:
