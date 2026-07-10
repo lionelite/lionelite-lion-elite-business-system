@@ -1,0 +1,17 @@
+[
+  {
+    "company_name": "Example Performance Studio",
+    "owner_name": "Public Owner Name",
+    "category": "personal trainer",
+    "city": "Miami",
+    "state": "FL",
+    "website": "https://example.com",
+    "public_phone": "305-555-0100",
+    "public_email": "hello@example.com",
+    "linkedin_url": null,
+    "instagram_url": "https://instagram.com/example",
+    "source_url": "https://example.com/contact",
+    "partnership_angle": "Affiliate and coaching referral partner",
+    "notes": "Sample record. Replace with verified public business information."
+  }
+]
