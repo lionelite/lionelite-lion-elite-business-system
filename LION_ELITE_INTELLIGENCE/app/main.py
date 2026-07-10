@@ -11,6 +11,7 @@ from .activities import router as activities_router
 from .database import Base, engine, get_db
 from .integrations import router as integrations_router
 from .models import Lead
+from .pipeline import router as pipeline_router
 from .sales import router as sales_router
 from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
@@ -19,12 +20,13 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Lion Elite Intelligence",
-    version="0.5.0",
-    description="CRM-ready lead intelligence API for public business prospect data.",
+    version="0.6.0",
+    description="CRM-ready lead intelligence and sales pipeline API for public business prospect data.",
 )
 app.include_router(sales_router)
 app.include_router(activities_router)
 app.include_router(integrations_router)
+app.include_router(pipeline_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
@@ -36,7 +38,7 @@ def dashboard() -> str:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.5.0"}
+    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.6.0"}
 
 
 def find_duplicate(db: Session, data: dict) -> Lead | None:
