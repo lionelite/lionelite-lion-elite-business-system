@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lion Elite Intelligence</title>
+  <style>
+    :root { color-scheme: dark; --gold:#d8b45c; --panel:#111; --muted:#9ca3af; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, sans-serif; background:#050505; color:#fff; }
+    header { padding:24px; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center; }
+    h1 { margin:0; font-size:24px; }
+    .gold { color:var(--gold); }
+    main { padding:24px; max-width:1400px; margin:auto; }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:22px; }
+    .card { background:var(--panel); border:1px solid #222; border-radius:14px; padding:18px; }
+    .label { color:var(--muted); font-size:12px; text-transform:uppercase; }
+    .value { font-size:30px; font-weight:700; margin-top:8px; }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+    input, select, button, a.button { background:#111; color:#fff; border:1px solid #333; border-radius:10px; padding:10px 12px; text-decoration:none; }
+    button, a.button { cursor:pointer; }
+    button.primary, a.primary { background:var(--gold); color:#111; border-color:var(--gold); font-weight:700; }
+    .table-wrap { overflow:auto; border:1px solid #222; border-radius:14px; }
+    table { width:100%; border-collapse:collapse; min-width:1100px; background:#0d0d0d; }
+    th, td { padding:12px; border-bottom:1px solid #222; text-align:left; font-size:13px; vertical-align:top; }
+    th { color:var(--gold); position:sticky; top:0; background:#111; }
+    .score { font-weight:700; color:var(--gold); }
+    .muted { color:var(--muted); }
+    .status { text-transform:capitalize; }
+  </style>
+</head>
+<body>
+<header>
+  <h1><span class="gold">Lion Elite</span> Intelligence</h1>
+  <span class="muted">Sales Rep Lead Console</span>
+</header>
+<main>
+  <section class="cards">
+    <div class="card"><div class="label">Total Leads</div><div class="value" id="total">0</div></div>
+    <div class="card"><div class="label">Qualified 80+</div><div class="value" id="qualified">0</div></div>
+    <div class="card"><div class="label">New</div><div class="value" id="newLeads">0</div></div>
+    <div class="card"><div class="label">Do Not Contact</div><div class="value" id="dnc">0</div></div>
+  </section>
+
+  <section class="toolbar">
+    <input id="query" placeholder="Search company, owner, city..." />
+    <input id="state" placeholder="State, e.g. FL" maxlength="2" />
+    <input id="minScore" type="number" min="0" max="100" value="60" />
+    <select id="status">
+      <option value="">All statuses</option>
+      <option value="new">New</option>
+      <option value="contacted">Contacted</option>
+      <option value="qualified">Qualified</option>
+      <option value="meeting_booked">Meeting Booked</option>
+      <option value="closed">Closed</option>
+    </select>
+    <button class="primary" onclick="loadLeads()">Refresh</button>
+    <a class="button" id="exportLink" href="/exports/leads.csv?min_score=60">Export CSV</a>
+  </section>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Score</th><th>Company</th><th>Owner</th><th>Type</th><th>Location</th>
+          <th>Phone</th><th>Email</th><th>Website</th><th>Angle</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</main>
+<script>
+async function loadStats() {
+  const r = await fetch('/stats');
+  const s = await r.json();
+  document.getElementById('total').textContent = s.total_leads;
+  document.getElementById('qualified').textContent = s.qualified_leads;
+  document.getElementById('newLeads').textContent = s.new_leads;
+  document.getElementById('dnc').textContent = s.do_not_contact;
+}
+
+async function loadLeads() {
+  const q = document.getElementById('query').value;
+  const state = document.getElementById('state').value.toUpperCase();
+  const minScore = document.getElementById('minScore').value || 0;
+  const status = document.getElementById('status').value;
+  const params = new URLSearchParams({ min_score:minScore, limit:500 });
+  if (q) params.set('q', q);
+  if (state) params.set('state', state);
+  if (status) params.set('status', status);
+  document.getElementById('exportLink').href = `/exports/leads.csv?min_score=${minScore}${status ? `&status=${status}` : ''}`;
+
+  const r = await fetch(`/leads?${params}`);
+  const leads = await r.json();
+  document.getElementById('rows').innerHTML = leads.map(l => `
+    <tr>
+      <td class="score">${l.score}</td>
+      <td>${esc(l.company_name)}</td>
+      <td>${esc(l.owner_name || '')}</td>
+      <td>${esc(l.category)}</td>
+      <td>${esc([l.city,l.state].filter(Boolean).join(', '))}</td>
+      <td>${esc(l.public_phone || '')}</td>
+      <td>${l.public_email ? `<a href="mailto:${esc(l.public_email)}">${esc(l.public_email)}</a>` : ''}</td>
+      <td>${l.website ? `<a href="${esc(l.website)}" target="_blank">Open</a>` : ''}</td>
+      <td>${esc(l.partnership_angle || '')}</td>
+      <td class="status">${esc(l.status)}</td>
+    </tr>`).join('');
+}
+
+function esc(v) {
+  return String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+
+loadStats();
+loadLeads();
+</script>
+</body>
+</html>
