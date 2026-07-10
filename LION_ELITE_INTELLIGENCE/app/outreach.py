@@ -7,6 +7,16 @@ class OutreachMessage:
     body: str
 
 
+SIGNATURE = """Best,
+Alexander Ringfield
+Lion Elite Beauty
+440-348-9591
+https://www.lionelitebeauty.com
+
+To opt out of future outreach, reply with REMOVE.
+"""
+
+
 def build_partnership_email(lead) -> OutreachMessage:
     first_name = (lead.owner_name or "there").split()[0]
     business = lead.company_name
@@ -29,12 +39,35 @@ If you could create more value for your clients and add a new revenue opportunit
 
 Would you be open to a short conversation?
 
-Best,
-Alexander Ringfield
-Lion Elite Beauty
-440-348-9591
-https://www.lionelitebeauty.com
+{SIGNATURE}"""
+    return OutreachMessage(subject=subject, body=body)
 
-To opt out of future outreach, reply with REMOVE.
-"""
+
+def build_follow_up_email(lead, follow_up_number: int) -> OutreachMessage:
+    first_name = (lead.owner_name or "there").split()[0]
+    business = lead.company_name
+
+    if follow_up_number == 1:
+        subject = f"Following up — {business}"
+        body = f"""Hi {first_name},
+
+I wanted to follow up in case my previous message got buried.
+
+We are building a select network of coaches, trainers, gyms, recovery studios, and wellness businesses that want to improve client support while creating an additional referral or affiliate revenue opportunity.
+
+Would a brief conversation be worth exploring for {business}?
+
+{SIGNATURE}"""
+    else:
+        subject = f"Should I close the loop with {business}?"
+        body = f"""Hi {first_name},
+
+I have not heard back, so I wanted to close the loop respectfully.
+
+If a Lion Elite Beauty coaching, referral, or affiliate partnership could be useful for {business}, reply with "LET'S TALK" and I will reach out personally.
+
+Otherwise, no problem at all.
+
+{SIGNATURE}"""
+
     return OutreachMessage(subject=subject, body=body)
