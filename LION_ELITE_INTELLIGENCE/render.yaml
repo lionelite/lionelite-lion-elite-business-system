@@ -12,6 +12,62 @@ services:
         fromDatabase:
           name: lion-elite-intelligence-db
           property: connectionString
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REFRESH_TOKEN
+        sync: false
+      - key: GMAIL_FROM_ADDRESS
+        sync: false
+      - key: GOOGLE_CALENDAR_ID
+        value: primary
+
+  - type: worker
+    name: lion-elite-intelligence-worker
+    env: docker
+    plan: starter
+    rootDir: LION_ELITE_INTELLIGENCE
+    dockerfilePath: ./Dockerfile
+    dockerCommand: python -m app.worker
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lion-elite-intelligence-db
+          property: connectionString
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REFRESH_TOKEN
+        sync: false
+      - key: GMAIL_FROM_ADDRESS
+        sync: false
+      - key: GOOGLE_CALENDAR_ID
+        value: primary
+      - key: AUTONOMOUS_SENDING_ENABLED
+        value: "false"
+      - key: OUTREACH_START_HOUR
+        value: "7"
+      - key: OUTREACH_END_HOUR
+        value: "18"
+      - key: OUTREACH_WEEKDAYS_ONLY
+        value: "true"
+      - key: DAILY_SEND_LIMIT
+        value: "25"
+      - key: SEND_BATCH_SIZE
+        value: "5"
+      - key: WORKER_INTERVAL_MINUTES
+        value: "15"
+      - key: MAX_FOLLOW_UPS
+        value: "2"
+      - key: REQUIRE_VERIFIED_PUBLIC_EMAIL
+        value: "true"
+      - key: ALLOWED_SOURCE_DOMAINS
+        sync: false
+      - key: GMAIL_PROCESSED_LABEL_ID
+        sync: false
 
 databases:
   - name: lion-elite-intelligence-db
