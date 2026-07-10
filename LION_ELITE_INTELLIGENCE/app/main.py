@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
 from .models import Lead
+from .sales import router as sales_router
 from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
 
@@ -16,9 +17,10 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Lion Elite Intelligence",
-    version="0.2.0",
+    version="0.3.0",
     description="CRM-ready lead intelligence API for public business prospect data.",
 )
+app.include_router(sales_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
@@ -30,7 +32,7 @@ def dashboard() -> str:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.2.0"}
+    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.3.0"}
 
 
 def find_duplicate(db: Session, data: dict) -> Lead | None:
@@ -77,7 +79,7 @@ def bulk_create_leads(payload: list[LeadCreate], db: Session = Depends(get_db)) 
             data["score"] = calculate_score(data)
             db.add(Lead(**data))
             created += 1
-        except Exception as exc:  # defensive batch handling
+        except Exception as exc:
             errors.append({"index": index, "error": str(exc)})
 
     db.commit()
@@ -194,36 +196,15 @@ def export_leads_csv(
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow([
-        "id",
-        "score",
-        "company_name",
-        "owner_name",
-        "category",
-        "city",
-        "state",
-        "public_phone",
-        "public_email",
-        "website",
-        "partnership_angle",
-        "status",
-        "notes",
+        "id", "score", "company_name", "owner_name", "category", "city", "state",
+        "public_phone", "public_email", "website", "partnership_angle", "status", "notes",
     ])
 
     for lead in leads:
         writer.writerow([
-            lead.id,
-            lead.score,
-            lead.company_name,
-            lead.owner_name or "",
-            lead.category,
-            lead.city or "",
-            lead.state or "",
-            lead.public_phone or "",
-            lead.public_email or "",
-            lead.website or "",
-            lead.partnership_angle or "",
-            lead.status,
-            lead.notes or "",
+            lead.id, lead.score, lead.company_name, lead.owner_name or "", lead.category,
+            lead.city or "", lead.state or "", lead.public_phone or "", lead.public_email or "",
+            lead.website or "", lead.partnership_angle or "", lead.status, lead.notes or "",
         ])
 
     return Response(
