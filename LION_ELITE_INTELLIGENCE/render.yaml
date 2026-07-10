@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: lion-elite-intelligence
+    env: docker
+    plan: starter
+    rootDir: LION_ELITE_INTELLIGENCE
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lion-elite-intelligence-db
+          property: connectionString
+
+databases:
+  - name: lion-elite-intelligence-db
+    plan: starter
+    databaseName: lion_elite_intelligence
+    user: lion_elite_intelligence
