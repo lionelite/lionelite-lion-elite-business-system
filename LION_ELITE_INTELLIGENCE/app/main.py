@@ -1,7 +1,10 @@
 import csv
 import io
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
-from sqlalchemy import or_, select
+from fastapi.responses import HTMLResponse
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
@@ -13,30 +16,40 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Lion Elite Intelligence",
-    version="0.1.0",
+    version="0.2.0",
     description="CRM-ready lead intelligence API for public business prospect data.",
 )
+
+DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
+
+
+@app.get("/", response_class=HTMLResponse)
+def dashboard() -> str:
+    return DASHBOARD_PATH.read_text(encoding="utf-8")
 
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "lion-elite-intelligence"}
+    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.2.0"}
 
 
-@app.post("/leads", response_model=LeadRead, status_code=201)
-def create_lead(payload: LeadCreate, db: Session = Depends(get_db)) -> Lead:
-    data = payload.model_dump()
-
+def find_duplicate(db: Session, data: dict) -> Lead | None:
     duplicate_filters = []
     if data.get("public_email"):
         duplicate_filters.append(Lead.public_email == str(data["public_email"]))
     if data.get("website"):
         duplicate_filters.append(Lead.website == data["website"])
+    if not duplicate_filters:
+        return None
+    return db.scalar(select(Lead).where(or_(*duplicate_filters)))
 
-    if duplicate_filters:
-        existing = db.scalar(select(Lead).where(or_(*duplicate_filters)))
-        if existing:
-            raise HTTPException(status_code=409, detail="Lead already exists")
+
+@app.post("/leads", response_model=LeadRead, status_code=201)
+def create_lead(payload: LeadCreate, db: Session = Depends(get_db)) -> Lead:
+    data = payload.model_dump()
+    existing = find_duplicate(db, data)
+    if existing:
+        raise HTTPException(status_code=409, detail="Lead already exists")
 
     data["public_email"] = str(data["public_email"]) if data.get("public_email") else None
     data["score"] = calculate_score(data)
@@ -45,6 +58,59 @@ def create_lead(payload: LeadCreate, db: Session = Depends(get_db)) -> Lead:
     db.commit()
     db.refresh(lead)
     return lead
+
+
+@app.post("/leads/bulk")
+def bulk_create_leads(payload: list[LeadCreate], db: Session = Depends(get_db)) -> dict:
+    created = 0
+    skipped_duplicates = 0
+    errors: list[dict] = []
+
+    for index, item in enumerate(payload):
+        try:
+            data = item.model_dump()
+            if find_duplicate(db, data):
+                skipped_duplicates += 1
+                continue
+
+            data["public_email"] = str(data["public_email"]) if data.get("public_email") else None
+            data["score"] = calculate_score(data)
+            db.add(Lead(**data))
+            created += 1
+        except Exception as exc:  # defensive batch handling
+            errors.append({"index": index, "error": str(exc)})
+
+    db.commit()
+    return {
+        "received": len(payload),
+        "created": created,
+        "skipped_duplicates": skipped_duplicates,
+        "errors": errors,
+    }
+
+
+@app.get("/stats")
+def stats(db: Session = Depends(get_db)) -> dict:
+    total = db.scalar(select(func.count()).select_from(Lead)) or 0
+    qualified = db.scalar(select(func.count()).select_from(Lead).where(Lead.score >= 80)) or 0
+    new_leads = db.scalar(select(func.count()).select_from(Lead).where(Lead.status == "new")) or 0
+    dnc = db.scalar(select(func.count()).select_from(Lead).where(Lead.do_not_contact.is_(True))) or 0
+
+    status_rows = db.execute(
+        select(Lead.status, func.count(Lead.id)).group_by(Lead.status).order_by(func.count(Lead.id).desc())
+    ).all()
+    category_rows = db.execute(
+        select(Lead.category, func.count(Lead.id)).group_by(Lead.category).order_by(func.count(Lead.id).desc()).limit(10)
+    ).all()
+
+    return {
+        "total_leads": total,
+        "qualified_leads": qualified,
+        "new_leads": new_leads,
+        "do_not_contact": dnc,
+        "by_status": {status: count for status, count in status_rows},
+        "top_categories": {category: count for category, count in category_rows},
+    }
 
 
 @app.get("/leads", response_model=list[LeadRead])
@@ -65,7 +131,7 @@ def list_leads(
     if category:
         stmt = stmt.where(Lead.category.ilike(f"%{category}%"))
     if state:
-        stmt = stmt.where(Lead.state == state)
+        stmt = stmt.where(Lead.state == state.upper())
     if q:
         pattern = f"%{q}%"
         stmt = stmt.where(
