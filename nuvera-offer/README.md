@@ -28,5 +28,16 @@ Nuvera turns a client's current financial and business structure into a document
 - Pre-sale / liquidity-event planning
 - Compliance and annual tax review
 
+## Deliverable stack
+- Nuvera Optimization Blueprint
+- Current-state ownership map
+- Target-state ownership map
+- Tax opportunity matrix
+- Asset-transfer matrix
+- CPA / attorney approval packet
+- Implementation tracker
+- 12-month optimization calendar
+- Annual review package
+
 ## Important boundary
 Nuvera is a strategy, organization, documentation, and implementation-coordination service. Final legal documents, tax returns, elections, valuations, trust amendments, and legal/tax conclusions must be completed or approved by qualified legal and tax professionals.
