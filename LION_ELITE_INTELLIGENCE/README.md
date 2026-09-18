@@ -6,6 +6,9 @@ Working MVP for storing, scoring, filtering, and exporting public B2B prospect d
 
 - Sales dashboard at `/`
 - Developer Delivery Control dashboard at `/delivery`
+- Peer-governed AI Agent Community dashboard at `/agents`
+- Persistent tasks, conversations, commitments, shared memory, peer reviews, approval gates, and audit events
+- Celery/Valkey always-on agent routing and one-minute accountability heartbeat
 - Track contractors, client contract value, fulfillment costs, forecast profit, and gross margin
 - Assign projects and manage milestone acceptance through `/delivery/api/*`
 - Health check at `/health`
@@ -84,3 +87,8 @@ Only store verified public business information or data from properly licensed s
 ## Developer Delivery Control
 
 Open `/delivery` to add vetted developers, create sold client projects, monitor cash collected, protect fulfillment margins, and identify overdue work. The API also supports milestone acceptance so contractor payouts can be tied to verified deliverables. See `docs/delivery/DEVELOPER_DELIVERY_OS.md` for the operating rules.
+
+
+## AI Agent Community
+
+Open `/agents` to create and observe work across equal-standing AI agents. Every task receives an owner and a different accountability partner, remains visible in a shared thread, and requires independent peer review. High-risk actions stop for human approval. See `docs/ai-control-plane/PLATFORM_STACK.md` for infrastructure, secrets, governance, and launch instructions.
