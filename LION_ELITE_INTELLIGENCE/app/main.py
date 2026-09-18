@@ -1,5 +1,9 @@
+import asyncio
 import csv
 import io
+import logging
+import os
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
@@ -19,11 +23,45 @@ from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
 
 Base.metadata.create_all(bind=engine)
+logger = logging.getLogger("lion-elite-free-runtime")
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    stop = asyncio.Event()
+    runner = None
+
+    async def run_agent_community() -> None:
+        from .agent_runtime import community_cycle
+
+        while not stop.is_set():
+            try:
+                await asyncio.to_thread(community_cycle.run)
+            except Exception:
+                logger.exception("In-process agent community cycle failed")
+            try:
+                await asyncio.wait_for(stop.wait(), timeout=60)
+            except TimeoutError:
+                pass
+
+    if os.getenv("IN_PROCESS_AGENT_RUNTIME", "false").lower() == "true":
+        runner = asyncio.create_task(run_agent_community())
+        logger.info("Free-tier in-process agent runtime started")
+
+    try:
+        yield
+    finally:
+        stop.set()
+        if runner:
+            with suppress(asyncio.CancelledError):
+                await runner
+
 
 app = FastAPI(
     title="Lion Elite Intelligence",
     version="0.8.0",
     description="Lead intelligence, delivery operations, and a persistent peer-governed AI agent community.",
+    lifespan=lifespan,
 )
 app.include_router(sales_router)
 app.include_router(activities_router)
