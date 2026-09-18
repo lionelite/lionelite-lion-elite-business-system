@@ -31,6 +31,14 @@ services:
         value: "5"
       - key: AUTONOMOUS_SENDING_ENABLED
         value: "false"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_GROWTH_PRICE_ID
+        sync: false
+      - key: STRIPE_SCALE_PRICE_ID
+        sync: false
 
   - type: worker
     name: lion-elite-agent-community
