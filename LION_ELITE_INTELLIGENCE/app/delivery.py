@@ -128,13 +128,16 @@ class ProjectCreate(BaseModel):
 
 
 class ProjectUpdate(BaseModel):
+    offer_type: str | None = None
     status: str | None = None
     contractor_id: int | None = None
+    contract_value: float | None = Field(default=None, ge=0)
     collected_amount: float | None = Field(default=None, ge=0)
     developer_budget: float | None = Field(default=None, ge=0)
     actual_developer_cost: float | None = Field(default=None, ge=0)
     software_cost: float | None = Field(default=None, ge=0)
     other_cost: float | None = Field(default=None, ge=0)
+    start_date: date | None = None
     due_date: date | None = None
     scope: str | None = None
     acceptance_criteria: str | None = None
@@ -214,6 +217,33 @@ def list_projects(status: str | None = None, db: Session = Depends(get_db)) -> l
     return list(db.scalars(stmt.order_by(DeliveryProject.updated_at.desc())).all())
 
 
+@router.get("/api/projects/{project_id}", response_model=ProjectRead)
+def get_project(project_id: int, db: Session = Depends(get_db)) -> DeliveryProject:
+    project = db.get(DeliveryProject, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
+
+@router.get("/api/projects/{project_id}/workspace")
+def project_workspace(project_id: int, db: Session = Depends(get_db)) -> dict:
+    project = db.get(DeliveryProject, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    milestones = list(db.scalars(
+        select(DeliveryMilestone)
+        .where(DeliveryMilestone.project_id == project_id)
+        .order_by(DeliveryMilestone.id)
+    ).all())
+    return {
+        "project": ProjectRead.model_validate(project),
+        "contractor": ContractorRead.model_validate(project.contractor) if project.contractor else None,
+        "milestones": [MilestoneRead.model_validate(m) for m in milestones],
+        "payment_ready": round(sum(m.payout_amount for m in milestones if m.status == "accepted"), 2),
+        "paid": round(sum(m.payout_amount for m in milestones if m.status == "paid"), 2),
+    }
+
+
 @router.patch("/api/projects/{project_id}", response_model=ProjectRead)
 def update_project(project_id: int, payload: ProjectUpdate, db: Session = Depends(get_db)) -> DeliveryProject:
     project = db.get(DeliveryProject, project_id)
@@ -266,11 +296,58 @@ def update_milestone(milestone_id: int, payload: MilestoneUpdate, db: Session = 
     return milestone
 
 
+@router.get("/api/payment-queue")
+def payment_queue(db: Session = Depends(get_db)) -> list[dict]:
+    rows = db.execute(
+        select(DeliveryMilestone, DeliveryProject)
+        .join(DeliveryProject, DeliveryProject.id == DeliveryMilestone.project_id)
+        .where(DeliveryMilestone.status == "accepted")
+        .order_by(DeliveryMilestone.accepted_at)
+    ).all()
+    return [{
+        "milestone_id": milestone.id,
+        "project_id": project.id,
+        "client_name": project.client_name,
+        "project_name": project.project_name,
+        "title": milestone.title,
+        "payout_amount": milestone.payout_amount,
+        "accepted_at": milestone.accepted_at,
+    } for milestone, project in rows]
+
+
+@router.get("/api/contractors/{contractor_id}/scorecard")
+def contractor_scorecard(contractor_id: int, db: Session = Depends(get_db)) -> dict:
+    contractor = db.get(Contractor, contractor_id)
+    if not contractor:
+        raise HTTPException(status_code=404, detail="Contractor not found")
+    projects = list(db.scalars(select(DeliveryProject).where(DeliveryProject.contractor_id == contractor_id)).all())
+    project_ids = [project.id for project in projects]
+    milestones = list(db.scalars(
+        select(DeliveryMilestone).where(DeliveryMilestone.project_id.in_(project_ids))
+    ).all()) if project_ids else []
+    accepted = [m for m in milestones if m.accepted_at]
+    delivered = [m for m in milestones if m.status in {"accepted", "paid"}]
+    on_time = [m for m in delivered if not m.due_date or (m.accepted_at and m.accepted_at.date() <= m.due_date)]
+    return {
+        "contractor": ContractorRead.model_validate(contractor),
+        "projects": len(projects),
+        "completed_projects": sum(p.status == "complete" for p in projects),
+        "milestones": len(milestones),
+        "accepted_milestones": len(accepted),
+        "on_time_percent": round(len(on_time) / len(delivered) * 100, 1) if delivered else None,
+        "total_assigned_budget": round(sum(p.developer_budget for p in projects), 2),
+        "actual_cost": round(sum(p.actual_developer_cost for p in projects), 2),
+    }
+
+
 @router.get("/api/summary")
 def delivery_summary(db: Session = Depends(get_db)) -> dict:
     projects = list(db.scalars(select(DeliveryProject)).all())
     open_statuses = {"scoping", "sold", "assigned", "in_progress", "client_review"}
     today = date.today()
+    payment_ready = list(db.scalars(
+        select(DeliveryMilestone).where(DeliveryMilestone.status == "accepted")
+    ).all())
     return {
         "projects": len(projects),
         "active_projects": sum(p.status in open_statuses for p in projects),
@@ -278,6 +355,9 @@ def delivery_summary(db: Session = Depends(get_db)) -> dict:
         "cash_collected": round(sum(p.collected_amount for p in projects), 2),
         "forecast_cost": round(sum(p.forecast_cost for p in projects), 2),
         "forecast_profit": round(sum(p.forecast_profit for p in projects), 2),
+        "low_margin_projects": sum(p.contract_value > 0 and p.margin_percent < 50 for p in projects),
+        "payment_ready_count": len(payment_ready),
+        "payment_ready_amount": round(sum(m.payout_amount for m in payment_ready), 2),
         "portfolio_margin_percent": round(
             (sum(p.forecast_profit for p in projects) / sum(p.contract_value for p in projects)) * 100, 1
         ) if sum(p.contract_value for p in projects) else 0,
