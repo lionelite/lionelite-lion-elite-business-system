@@ -221,3 +221,24 @@ def me(workspace=Depends(current_workspace)) -> dict:
         },
         "role": membership.role,
     }
+
+
+@router.get("/saas/api/workspaces")
+def workspaces(workspace=Depends(current_workspace), db: Session = Depends(get_db)) -> list[dict]:
+    user, active, _ = workspace
+    rows = db.execute(select(OrganizationMember, Organization).join(Organization, Organization.id == OrganizationMember.organization_id).where(OrganizationMember.user_id == user.id)).all()
+    return [{"id": org.id, "name": org.name, "slug": org.slug, "role": member.role, "active": org.id == active.id} for member, org in rows]
+
+
+@router.post("/saas/api/workspaces/{organization_id}/activate")
+def activate_workspace(organization_id: int, lei_session: str | None = Cookie(default=None), workspace=Depends(current_workspace), db: Session = Depends(get_db)) -> dict:
+    user, _, _ = workspace
+    member = db.scalar(select(OrganizationMember).where(OrganizationMember.user_id == user.id, OrganizationMember.organization_id == organization_id))
+    if not member or not lei_session:
+        raise HTTPException(status_code=403, detail="You do not belong to this workspace")
+    session = db.scalar(select(UserSession).where(UserSession.token_hash == hashlib.sha256(lei_session.encode()).hexdigest(), UserSession.user_id == user.id))
+    if not session:
+        raise HTTPException(status_code=401, detail="Session expired")
+    session.organization_id = organization_id
+    db.commit()
+    return {"active": organization_id, "next": "/app"}
