@@ -21,6 +21,7 @@ from .pipeline import router as pipeline_router
 from .sales import router as sales_router
 from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
+from .saas import router as saas_router
 
 Base.metadata.create_all(bind=engine)
 logger = logging.getLogger("lion-elite-free-runtime")
@@ -69,11 +70,12 @@ app.include_router(agent_control_router)
 app.include_router(delivery_router)
 app.include_router(integrations_router)
 app.include_router(pipeline_router)
+app.include_router(saas_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/legacy", response_class=HTMLResponse)
 def dashboard() -> str:
     return DASHBOARD_PATH.read_text(encoding="utf-8")
 
