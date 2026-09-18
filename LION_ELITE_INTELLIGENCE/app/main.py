@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from .activities import router as activities_router
 from .database import Base, engine, get_db
+from .delivery import router as delivery_router
 from .integrations import router as integrations_router
 from .models import Lead
 from .pipeline import router as pipeline_router
@@ -20,11 +21,12 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Lion Elite Intelligence",
-    version="0.6.0",
-    description="CRM-ready lead intelligence and sales pipeline API for public business prospect data.",
+    version="0.7.0",
+    description="Lead intelligence, sales pipeline, and controlled client delivery operations.",
 )
 app.include_router(sales_router)
 app.include_router(activities_router)
+app.include_router(delivery_router)
 app.include_router(integrations_router)
 app.include_router(pipeline_router)
 
@@ -38,7 +40,7 @@ def dashboard() -> str:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.6.0"}
+    return {"status": "ok", "service": "lion-elite-intelligence", "version": "0.7.0"}
 
 
 def find_duplicate(db: Session, data: dict) -> Lead | None:
