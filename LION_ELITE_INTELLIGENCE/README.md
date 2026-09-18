@@ -7,6 +7,7 @@ Multi-tenant SaaS foundation for deploying accountable AI agent communities to b
 - Customer signup and sign-in at `/`
 - Automatic organization workspace, owner membership, secure session, and trial record
 - Customer product home and guided onboarding at `/app`
+- Tenant-isolated agents, objectives, conversations, usage limits, and team invitations at `/workspace`
 - Sales dashboard at `/legacy`
 - Developer Delivery Control dashboard at `/delivery`
 - Peer-governed AI Agent Community dashboard at `/agents`
