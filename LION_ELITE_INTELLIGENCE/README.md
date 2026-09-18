@@ -9,6 +9,7 @@ Multi-tenant SaaS foundation for deploying accountable AI agent communities to b
 - Customer product home and guided onboarding at `/app`
 - Tenant-isolated agents, objectives, conversations, usage limits, and team invitations at `/workspace`
 - Stripe-ready Growth and Scale subscription checkout, customer billing portal, signed webhooks, and idempotent subscription synchronization
+- Role-based team management, invitation acceptance, workspace switching, customizable agents, and a tenant audit trail
 - Sales dashboard at `/legacy`
 - Developer Delivery Control dashboard at `/delivery`
 - Peer-governed AI Agent Community dashboard at `/agents`
