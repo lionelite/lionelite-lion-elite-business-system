@@ -202,9 +202,8 @@ def community_cycle() -> dict:
                 agent.status = "offline"
 
         queued = list(db.scalars(select(AgentTask).where(AgentTask.status == "queued").order_by(AgentTask.priority.desc()).limit(50)).all())
-        for task in queued:
-            dispatch_agent_task.delay(task.id)
-            recovered += 1
+        queued_ids = [task.id for task in queued]
+        recovered = len(queued_ids)
 
         overdue = list(db.scalars(select(AgentTask).where(
             AgentTask.due_at.is_not(None), AgentTask.due_at < now,
@@ -225,6 +224,14 @@ def community_cycle() -> dict:
                 db.add(AgentEvent(agent_slug="community", task_id=task.id, event_type="missed_commitment", detail=task.title))
                 reminders += 1
         db.commit()
+
+    in_process = os.getenv("IN_PROCESS_AGENT_RUNTIME", "false").lower() == "true"
+    for task_id in queued_ids:
+        if in_process:
+            dispatch_agent_task.run(task_id)
+        else:
+            dispatch_agent_task.delay(task_id)
+
     return {"queued_recovered": recovered, "accountability_alerts": reminders}
 
 
