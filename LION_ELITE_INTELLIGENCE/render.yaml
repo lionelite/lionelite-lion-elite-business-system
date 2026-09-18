@@ -1,16 +1,27 @@
 services:
+  - type: keyvalue
+    name: lion-elite-agent-bus
+    plan: starter
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
   - type: web
     name: lion-elite-intelligence
-    env: docker
+    runtime: docker
     plan: starter
     rootDir: LION_ELITE_INTELLIGENCE
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
-    autoDeploy: true
+    autoDeployTrigger: commit
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: lion-elite-intelligence-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: lion-elite-agent-bus
+          type: keyvalue
           property: connectionString
       - key: GOOGLE_CLIENT_ID
         sync: false
@@ -25,12 +36,13 @@ services:
 
   - type: worker
     name: lion-elite-intelligence-worker
-    env: docker
+    runtime: docker
     plan: starter
     rootDir: LION_ELITE_INTELLIGENCE
     dockerfilePath: ./Dockerfile
     dockerCommand: python -m app.worker
-    autoDeploy: true
+    autoDeployTrigger: commit
+    maxShutdownDelaySeconds: 120
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -68,6 +80,56 @@ services:
         sync: false
       - key: GMAIL_PROCESSED_LABEL_ID
         sync: false
+
+  - type: worker
+    name: lion-elite-agent-worker
+    runtime: docker
+    plan: starter
+    rootDir: LION_ELITE_INTELLIGENCE
+    dockerfilePath: ./Dockerfile
+    dockerCommand: celery -A app.agent_runtime.celery_app worker --loglevel=INFO --concurrency=2 --prefetch-multiplier=1
+    autoDeployTrigger: commit
+    maxShutdownDelaySeconds: 300
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lion-elite-intelligence-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: lion-elite-agent-bus
+          type: keyvalue
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
+      - key: AGENT_SOFT_TIME_LIMIT
+        value: "240"
+      - key: AGENT_HARD_TIME_LIMIT
+        value: "280"
+      - key: AGENT_STALE_MINUTES
+        value: "5"
+
+  - type: worker
+    name: lion-elite-agent-heartbeat
+    runtime: docker
+    plan: starter
+    rootDir: LION_ELITE_INTELLIGENCE
+    dockerfilePath: ./Dockerfile
+    dockerCommand: celery -A app.agent_runtime.celery_app beat --loglevel=INFO
+    autoDeployTrigger: commit
+    maxShutdownDelaySeconds: 60
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lion-elite-intelligence-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: lion-elite-agent-bus
+          type: keyvalue
+          property: connectionString
 
 databases:
   - name: lion-elite-intelligence-db
