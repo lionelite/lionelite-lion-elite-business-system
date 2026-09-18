@@ -23,6 +23,7 @@ from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
 from .saas import router as saas_router
 from .workspace import router as workspace_router
+from .billing import router as billing_router
 
 Base.metadata.create_all(bind=engine)
 logger = logging.getLogger("lion-elite-free-runtime")
@@ -73,6 +74,7 @@ app.include_router(integrations_router)
 app.include_router(pipeline_router)
 app.include_router(saas_router)
 app.include_router(workspace_router)
+app.include_router(billing_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
