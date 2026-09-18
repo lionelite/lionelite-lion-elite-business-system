@@ -3,7 +3,6 @@ import os
 
 from fastapi import Header, HTTPException
 
-
 def require_admin_key(x_lei_admin_key: str | None = Header(default=None)) -> None:
     expected = os.getenv("LEI_ADMIN_API_KEY")
     if not expected:
