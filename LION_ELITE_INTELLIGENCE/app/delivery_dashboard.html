@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lion Elite Delivery Control</title>
+  <style>
+    :root{--bg:#050505;--panel:#111;--line:#292929;--gold:#d8b45c;--muted:#9ca3af;--green:#44c47d;--red:#ef6b6b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font:14px Arial,sans-serif}header{padding:22px 5%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}h1,h2{margin:0}.gold{color:var(--gold)}a{color:var(--gold)}main{width:min(1500px,92%);margin:24px auto}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}.label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.value{font-size:27px;font-weight:700;margin-top:8px}.grid{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-top:16px}.stack{display:grid;gap:16px}form{display:grid;gap:10px}input,select,textarea,button{width:100%;padding:10px 11px;border-radius:9px;border:1px solid #383838;background:#0a0a0a;color:#fff}textarea{min-height:76px;resize:vertical}button{cursor:pointer;background:var(--gold);color:#111;font-weight:700;border-color:var(--gold)}.table{overflow:auto}.project{display:grid;grid-template-columns:2fr repeat(4,1fr) 1.2fr;gap:12px;padding:14px;border-bottom:1px solid var(--line);align-items:center;min-width:900px}.project:first-child{color:var(--muted);font-size:11px;text-transform:uppercase}.profit{color:var(--green);font-weight:700}.danger{color:var(--red)}.pill{display:inline-block;padding:5px 8px;border:1px solid #444;border-radius:999px;text-transform:capitalize}.notice{display:none;margin:12px 0;padding:10px;border:1px solid var(--green);border-radius:9px}@media(max-width:900px){.grid{grid-template-columns:1fr}header{align-items:flex-start;gap:10px;flex-direction:column}}
+  </style>
+</head>
+<body>
+<header><div><h1><span class="gold">Lion Elite</span> Delivery Control</h1><div class="label">Sell outcomes. Control scope. Protect margin.</div></div><a href="/">Sales workspace</a></header>
+<main>
+  <section class="cards">
+    <div class="card"><div class="label">Contracted Revenue</div><div class="value" id="revenue">$0</div></div>
+    <div class="card"><div class="label">Cash Collected</div><div class="value" id="collected">$0</div></div>
+    <div class="card"><div class="label">Forecast Profit</div><div class="value" id="profit">$0</div></div>
+    <div class="card"><div class="label">Portfolio Margin</div><div class="value" id="margin">0%</div></div>
+    <div class="card"><div class="label">Active Projects</div><div class="value" id="active">0</div></div>
+    <div class="card"><div class="label">Overdue</div><div class="value" id="overdue">0</div></div>
+  </section>
+  <div id="notice" class="notice"></div>
+  <section class="grid">
+    <div class="stack">
+      <div class="panel"><h2>Add Developer</h2><br><form id="contractorForm">
+        <input id="cName" required placeholder="Developer or agency name"><input id="cSpecialty" required placeholder="Specialty: AI, frontend, automation..."><input id="cEmail" type="email" placeholder="Email"><select id="cRateType"><option value="fixed">Fixed project</option><option value="hourly">Hourly</option><option value="milestone">Milestone</option></select><input id="cRate" type="number" min="0" step=".01" placeholder="Typical rate"><button>Add Developer</button>
+      </form></div>
+      <div class="panel"><h2>Add Client Project</h2><br><form id="projectForm">
+        <input id="pClient" required placeholder="Client company"><input id="pName" required placeholder="Project name"><select id="pContractor"><option value="">Unassigned</option></select><input id="pValue" required type="number" min="0" step=".01" placeholder="Client contract value"><input id="pCollected" type="number" min="0" step=".01" placeholder="Cash collected"><input id="pDevBudget" required type="number" min="0" step=".01" placeholder="Developer budget"><input id="pSoftware" type="number" min="0" step=".01" placeholder="Software cost"><input id="pDue" type="date"><textarea id="pScope" placeholder="Outcome-focused scope"></textarea><textarea id="pAcceptance" placeholder="Objective acceptance criteria"></textarea><button>Create Project</button>
+      </form></div>
+    </div>
+    <div class="panel table"><h2>Delivery Portfolio</h2><br><div class="project"><div>Client / Project</div><div>Status</div><div>Revenue</div><div>Cost</div><div>Profit</div><div>Margin</div></div><div id="projects"></div></div>
+  </section>
+</main>
+<script>
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n||0);const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function msg(t,bad=false){notice.textContent=t;notice.style.borderColor=bad?'var(--red)':'var(--green)';notice.style.display='block';setTimeout(()=>notice.style.display='none',3500)}
+async function load(){const [s,p,c]=await Promise.all([fetch('/delivery/api/summary').then(r=>r.json()),fetch('/delivery/api/projects').then(r=>r.json()),fetch('/delivery/api/contractors').then(r=>r.json())]);revenue.textContent=money(s.contracted_revenue);collected.textContent=money(s.cash_collected);profit.textContent=money(s.forecast_profit);margin.textContent=`${s.portfolio_margin_percent}%`;active.textContent=s.active_projects;overdue.textContent=s.overdue_projects;overdue.className=`value ${s.overdue_projects?'danger':''}`;pContractor.innerHTML='<option value="">Unassigned</option>'+c.filter(x=>x.status==='active').map(x=>`<option value="${x.id}">${esc(x.name)} — ${esc(x.specialty)}</option>`).join('');projects.innerHTML=p.map(x=>`<div class="project"><div><strong>${esc(x.client_name)}</strong><br><span class="label">${esc(x.project_name)}</span></div><div><span class="pill">${esc(x.status.replaceAll('_',' '))}</span></div><div>${money(x.contract_value)}</div><div>${money(x.forecast_cost)}</div><div class="profit">${money(x.forecast_profit)}</div><div class="${x.margin_percent<50?'danger':'profit'}">${x.margin_percent}%</div></div>`).join('')||'<p class="label">No delivery projects yet.</p>'}
+contractorForm.addEventListener('submit',async e=>{e.preventDefault();const body={name:cName.value,specialty:cSpecialty.value,email:cEmail.value||null,rate_type:cRateType.value,rate:Number(cRate.value||0)};const r=await fetch('/delivery/api/contractors',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)return msg((await r.json()).detail||'Unable to add developer',true);contractorForm.reset();msg('Developer added.');load()});
+projectForm.addEventListener('submit',async e=>{e.preventDefault();const body={client_name:pClient.value,project_name:pName.value,contractor_id:pContractor.value?Number(pContractor.value):null,contract_value:Number(pValue.value),collected_amount:Number(pCollected.value||0),developer_budget:Number(pDevBudget.value),software_cost:Number(pSoftware.value||0),due_date:pDue.value||null,scope:pScope.value||null,acceptance_criteria:pAcceptance.value||null,status:pContractor.value?'assigned':'sold'};const r=await fetch('/delivery/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)return msg((await r.json()).detail||'Unable to create project',true);projectForm.reset();msg('Project created with margin tracking.');load()});load();
+</script></body></html>

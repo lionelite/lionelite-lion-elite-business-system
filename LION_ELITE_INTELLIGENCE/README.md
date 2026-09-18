@@ -5,6 +5,9 @@ Working MVP for storing, scoring, filtering, and exporting public B2B prospect d
 ## Current Features
 
 - Sales dashboard at `/`
+- Developer Delivery Control dashboard at `/delivery`
+- Track contractors, client contract value, fulfillment costs, forecast profit, and gross margin
+- Assign projects and manage milestone acceptance through `/delivery/api/*`
 - Health check at `/health`
 - Create one lead with `POST /leads`
 - Bulk-create leads with `POST /leads/bulk`
@@ -76,3 +79,8 @@ The service uses `/health` for Render health checks.
 ## Data Rules
 
 Only store verified public business information or data from properly licensed sources. Respect opt-outs and set `do_not_contact=true` when requested.
+
+
+## Developer Delivery Control
+
+Open `/delivery` to add vetted developers, create sold client projects, monitor cash collected, protect fulfillment margins, and identify overdue work. The API also supports milestone acceptance so contractor payouts can be tied to verified deliverables. See `docs/delivery/DEVELOPER_DELIVERY_OS.md` for the operating rules.
