@@ -1,10 +1,13 @@
 # Lion Elite Intelligence
 
-Working MVP for storing, scoring, filtering, and exporting public B2B prospect data.
+Multi-tenant SaaS foundation for deploying accountable AI agent communities to business customers.
 
 ## Current Features
 
-- Sales dashboard at `/`
+- Customer signup and sign-in at `/`
+- Automatic organization workspace, owner membership, secure session, and trial record
+- Customer product home and guided onboarding at `/app`
+- Sales dashboard at `/legacy`
 - Developer Delivery Control dashboard at `/delivery`
 - Peer-governed AI Agent Community dashboard at `/agents`
 - Persistent tasks, conversations, commitments, shared memory, peer reviews, approval gates, and audit events
@@ -35,7 +38,9 @@ uvicorn app.main:app --reload
 
 Open:
 
-- Dashboard: `http://127.0.0.1:8000/`
+- Signup / login: `http://127.0.0.1:8000/`
+- Customer workspace: `http://127.0.0.1:8000/app`
+- Growth dashboard: `http://127.0.0.1:8000/legacy`
 - API docs: `http://127.0.0.1:8000/docs`
 
 ## Add One Lead
