@@ -189,6 +189,7 @@ def dispatch_agent_task(self, task_id: int) -> dict:
 def community_cycle() -> dict:
     Base.metadata.create_all(bind=engine)
     now = datetime.utcnow()
+    in_process = os.getenv("IN_PROCESS_AGENT_RUNTIME", "false").lower() == "true"
     stale_cutoff = now - timedelta(minutes=int(os.getenv("AGENT_STALE_MINUTES", "5")))
     recovered = 0
     reminders = 0
@@ -196,6 +197,11 @@ def community_cycle() -> dict:
         bootstrap_agents(db)
         agents = list(db.scalars(select(AgentDefinition).where(AgentDefinition.enabled.is_(True))).all())
         for agent in agents:
+            if in_process:
+                agent.last_heartbeat_at = now
+                if agent.status == "offline":
+                    agent.status = "idle"
+                continue
             if not agent.last_heartbeat_at or agent.last_heartbeat_at < stale_cutoff:
                 if agent.status != "offline":
                     db.add(AgentEvent(agent_slug=agent.slug, event_type="agent_offline", detail="Heartbeat missed; peers must cover open commitments"))
@@ -225,7 +231,6 @@ def community_cycle() -> dict:
                 reminders += 1
         db.commit()
 
-    in_process = os.getenv("IN_PROCESS_AGENT_RUNTIME", "false").lower() == "true"
     for task_id in queued_ids:
         if in_process:
             dispatch_agent_task.run(task_id)
