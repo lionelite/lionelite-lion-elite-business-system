@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-const initialLeads = [
-  { id: 1, company: "Miami Wellness & Weight Loss", contact: "Clinic Owner", email: "", city: "Miami, FL", services: "Weight loss, wellness", score: 92, stage: "Qualified", last: "Not contacted", next: "Generate outreach" },
-  { id: 2, company: "South Florida Hormone Center", contact: "Medical Director", email: "", city: "Fort Lauderdale, FL", services: "TRT, hormone optimization", score: 88, stage: "Qualified", last: "Not contacted", next: "Generate outreach" },
-  { id: 3, company: "Premier Med Spa", contact: "Practice Manager", email: "", city: "Boca Raton, FL", services: "Med spa, aesthetics", score: 81, stage: "New", last: "Not contacted", next: "Qualify" }
-];
+// Prospects come from the CRM, which is the system of record. The three
+// hardcoded clinics that used to live here were demo data held in browser
+// state: a reload lost everything, and the names were invented, which is
+// exactly what must never appear in a list someone might contact.
+//
+// The page reads through /api/prospects rather than calling the CRM directly,
+// because CRM_ADMIN_KEY must stay server-side — a client component talking to
+// the CRM would ship the key in the bundle.
 
 const stages = ["New","Qualified","Outreach Ready","Contacted","Replied","Follow-Up","Call Booked","Proposal","Won","Lost"];
 
@@ -40,10 +43,45 @@ Would a quick 10-minute walkthrough this week be worth it?
 }
 
 export default function Home() {
-  const [leads, setLeads] = useState(initialLeads);
-  const [selected, setSelected] = useState(initialLeads[0]);
-  const [draft, setDraft] = useState(outreachFor(initialLeads[0]));
+  const [leads, setLeads] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [draft, setDraft] = useState("");
   const [form, setForm] = useState({ company: "", contact: "", email: "", city: "", services: "" });
+  // "loading" | "live" | "pending" | "error". Reported rather than collapsed
+  // into an empty list: an unconfigured CRM and a CRM with no prospects both
+  // render as zero rows, and those need different actions from whoever is
+  // looking at the screen.
+  const [connection, setConnection] = useState({ state: "loading", detail: "" });
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const response = await fetch("/api/prospects", { cache: "no-store" });
+      const body = await response.json();
+
+      if (body.mode === "pending") {
+        setConnection({ state: "pending", detail: `Set ${(body.missing || []).join(", ")}` });
+        setLeads([]);
+        return;
+      }
+      if (!body.ok) {
+        setConnection({ state: "error", detail: body.error || "CRM unreachable" });
+        return;
+      }
+
+      setLeads(body.prospects);
+      setConnection({ state: "live", detail: `${body.prospects.length} prospect(s) from CRM` });
+      // Keep the current selection across a reload where possible, so a stage
+      // change does not bounce the detail pane back to the first row.
+      setSelected(prev => body.prospects.find(p => p.id === prev?.id) || body.prospects[0] || null);
+    } catch (error) {
+      setConnection({ state: "error", detail: error.message });
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  useEffect(() => { setDraft(selected ? outreachFor(selected) : ""); }, [selected]);
 
   const metrics = useMemo(() => ({
     total: leads.length,
@@ -52,22 +90,48 @@ export default function Home() {
     meetings: leads.filter(l => l.stage === "Call Booked").length
   }), [leads]);
 
-  function addLead(e) {
+  async function addLead(e) {
     e.preventDefault();
-    if (!form.company.trim()) return;
-    const lead = { id: Date.now(), ...form, score: scoreLead(form), stage: "New", last: "Not contacted", next: "Qualify" };
-    setLeads(prev => [lead, ...prev]);
-    setSelected(lead);
-    setDraft(outreachFor(lead));
-    setForm({ company: "", contact: "", email: "", city: "", services: "" });
+    if (!form.company.trim() || busy) return;
+    setBusy(true);
+    try {
+      // Persisted through the CRM rather than pushed into local state, so it
+      // survives a reload and is visible to everything else reading the CRM.
+      const response = await fetch("/api/prospects", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          company_name: form.company,
+          contact_name: form.contact,
+          email: form.email,
+          city: form.city,
+          category: form.services || "clinic"
+        })
+      });
+      const body = await response.json();
+      if (body.mode === "pending") {
+        setConnection({ state: "pending", detail: `Not saved. Set ${(body.missing || []).join(", ")}` });
+      } else if (!body.ok) {
+        setConnection({ state: "error", detail: body.error || body.message || "Save failed" });
+      } else {
+        setForm({ company: "", contact: "", email: "", city: "", services: "" });
+        await load();
+      }
+    } catch (error) {
+      setConnection({ state: "error", detail: error.message });
+    } finally {
+      setBusy(false);
+    }
   }
 
   function updateStage(stage) {
+    if (!selected) return;
     setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, stage } : l));
     setSelected(prev => ({ ...prev, stage }));
   }
 
   function qualify() {
+    if (!selected) return;
     const score = scoreLead(selected);
     const stage = score >= 75 ? "Qualified" : "New";
     setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, score, stage } : l));
@@ -75,6 +139,7 @@ export default function Home() {
   }
 
   function generate() {
+    if (!selected) return;
     const nextDraft = outreachFor(selected);
     setDraft(nextDraft);
     if (selected.stage === "Qualified" || selected.stage === "New") updateStage("Outreach Ready");
@@ -143,15 +208,34 @@ export default function Home() {
 
           <aside className="card detail">
             <p className="eyebrow">SELECTED PROSPECT</p>
-            <h2>{selected.company}</h2>
-            <p className="muted">{selected.city} · {selected.services}</p>
-            <div className="scoreBlock"><span>ICP Score</span><strong>{selected.score}/100</strong></div>
-            <button onClick={qualify}>Re-score Prospect</button>
-            <label>Pipeline Stage</label>
-            <select value={selected.stage} onChange={e => updateStage(e.target.value)}>
-              {stages.map(s => <option key={s}>{s}</option>)}
-            </select>
-            <button className="primary full" onClick={generate}>Generate Personalized Outreach</button>
+            {/* Nothing is selected when the CRM returned no prospects, which is
+                the normal state on a fresh workspace. The empty state says why
+                rather than rendering a blank card — and crucially, reading
+                `selected.company` here would throw and take the whole page
+                down, since this is a client component. */}
+            {selected ? (
+              <>
+                <h2>{selected.company}</h2>
+                <p className="muted">{[selected.city, selected.services].filter(Boolean).join(" · ")}</p>
+                <div className="scoreBlock"><span>ICP Score</span><strong>{selected.score}/100</strong></div>
+                <button onClick={qualify}>Re-score Prospect</button>
+                <label>Pipeline Stage</label>
+                <select value={selected.stage} onChange={e => updateStage(e.target.value)}>
+                  {stages.map(s => <option key={s}>{s}</option>)}
+                </select>
+                <button className="primary full" onClick={generate}>Generate Personalized Outreach</button>
+              </>
+            ) : (
+              <p className="muted">
+                {connection.state === "pending"
+                  ? `CRM not connected. ${connection.detail}`
+                  : connection.state === "error"
+                    ? `CRM error: ${connection.detail}`
+                    : connection.state === "loading"
+                      ? "Loading prospects from the CRM…"
+                      : "No prospects yet. Add one, or run a harvest."}
+              </p>
+            )}
           </aside>
         </div>
 

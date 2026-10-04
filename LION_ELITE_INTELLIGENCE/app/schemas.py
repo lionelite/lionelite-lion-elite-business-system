@@ -33,6 +33,13 @@ class LeadRead(LeadCreate):
     do_not_contact: bool
     created_at: datetime
     updated_at: datetime
+    # Tenancy and provenance. Stored on the model but previously absent from
+    # this response, so a caller could not tell which workspace a lead belonged
+    # to, nor whether it was sourced by BuildPipeline or entered by a human —
+    # which made every synced lead read back as "manual" in the UI.
+    organization_id: int | None = None
+    source_system: str | None = None
+    external_id: str | None = None
 
 
 class OpportunityCreate(BaseModel):

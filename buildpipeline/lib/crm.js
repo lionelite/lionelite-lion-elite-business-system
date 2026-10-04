@@ -129,3 +129,97 @@ export async function syncProspectsToCRM(prospects, config = CRM_CONFIG, fetchIm
 export async function pushLeadToCRM(lead, config = CRM_CONFIG, fetchImpl = fetch) {
   return syncProspectsToCRM([lead], config, fetchImpl);
 }
+
+/**
+ * Read prospects back out of the CRM.
+ *
+ * The CRM is the system of record, so the UI reads from it rather than holding
+ * its own copy. These run server-side only — `CRM_ADMIN_KEY` must never reach
+ * the browser, which is why `app/api/*` route handlers call these and the page
+ * calls the route handlers.
+ */
+export async function fetchProspectsFromCRM(options = {}, config = CRM_CONFIG, fetchImpl = fetch) {
+  const readiness = crmReadiness(config);
+  if (!readiness.ready) {
+    return { ok: false, mode: "pending", missing: readiness.missing, prospects: [] };
+  }
+
+  const params = new URLSearchParams({ organization_id: String(config.organizationId) });
+  if (options.limit) params.set("limit", String(options.limit));
+  if (options.minScore) params.set("min_score", String(options.minScore));
+  if (options.status) params.set("status", options.status);
+  if (options.q) params.set("q", options.q);
+
+  const response = await fetchImpl(`${config.apiBase.replace(/\/$/, "")}/leads?${params}`, {
+    headers: { "x-lei-admin-key": config.apiKey },
+    // The CRM is the source of truth; a cached list would show a stage that has
+    // already moved, which is worse than a slower page.
+    cache: "no-store"
+  });
+
+  const text = await response.text();
+  if (!response.ok) throw new Error(`CRM read failed (${response.status}): ${text.slice(0, 300)}`);
+
+  return { ok: true, mode: "live", prospects: (text ? JSON.parse(text) : []).map(fromCrmLead) };
+}
+
+export async function fetchStatsFromCRM(config = CRM_CONFIG, fetchImpl = fetch) {
+  const readiness = crmReadiness(config);
+  if (!readiness.ready) return { ok: false, mode: "pending", missing: readiness.missing, stats: null };
+
+  const params = new URLSearchParams({ organization_id: String(config.organizationId) });
+  const response = await fetchImpl(`${config.apiBase.replace(/\/$/, "")}/stats?${params}`, {
+    headers: { "x-lei-admin-key": config.apiKey },
+    cache: "no-store"
+  });
+
+  const text = await response.text();
+  if (!response.ok) throw new Error(`CRM stats failed (${response.status}): ${text.slice(0, 300)}`);
+  return { ok: true, mode: "live", stats: text ? JSON.parse(text) : null };
+}
+
+/**
+ * CRM Lead → the shape the UI renders.
+ *
+ * The inverse of `toCrmLead`. Kept adjacent to it deliberately: when one side
+ * gains a field and the other does not, the bug is a value that silently stops
+ * appearing, and the two functions being next to each other is what makes that
+ * visible in review.
+ *
+ * `stage` comes from the CRM's lowercase `status` and is mapped to the UI's
+ * display labels. An unrecognised status is passed through rather than defaulted
+ * to "New" — showing a stage the CRM does not have would misreport the pipeline.
+ */
+const STAGE_LABELS = {
+  new: "New",
+  qualified: "Qualified",
+  outreach_ready: "Outreach Ready",
+  contacted: "Contacted",
+  replied: "Replied",
+  follow_up: "Follow-Up",
+  call_booked: "Call Booked",
+  proposal: "Proposal",
+  won: "Won",
+  lost: "Lost",
+  do_not_contact: "Do Not Contact"
+};
+
+export function fromCrmLead(lead = {}) {
+  return {
+    id: lead.id,
+    company: lead.company_name || "",
+    contact: lead.owner_name || "",
+    email: lead.public_email || "",
+    phone: lead.public_phone || "",
+    website: lead.website || "",
+    city: lead.city || "",
+    state: lead.state || "",
+    services: lead.category || "",
+    score: typeof lead.score === "number" ? lead.score : 0,
+    stage: STAGE_LABELS[lead.status] || lead.status || "New",
+    doNotContact: Boolean(lead.do_not_contact),
+    notes: lead.notes || "",
+    last: lead.updated_at || "",
+    source: lead.source_system || "manual"
+  };
+}
