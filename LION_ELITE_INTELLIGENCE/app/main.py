@@ -23,6 +23,7 @@ from .pipeline import router as pipeline_router
 from .sales import router as sales_router
 from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
+from .tenancy import OrganizationScope, resolve_organization_id, scoped
 from .saas import router as saas_router
 from .workspace import router as workspace_router
 from .billing import router as billing_router
@@ -161,20 +162,36 @@ def bulk_create_leads(payload: list[LeadCreate], db: Session = Depends(get_db)) 
 
 
 @app.get("/stats")
-def stats(db: Session = Depends(get_db)) -> dict:
-    total = db.scalar(select(func.count()).select_from(Lead)) or 0
-    qualified = db.scalar(select(func.count()).select_from(Lead).where(Lead.score >= 80)) or 0
-    new_leads = db.scalar(select(func.count()).select_from(Lead).where(Lead.status == "new")) or 0
-    dnc = db.scalar(select(func.count()).select_from(Lead).where(Lead.do_not_contact.is_(True))) or 0
+def stats(
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> dict:
+    # Aggregates are the easiest place for a tenant leak to hide: a wrong count
+    # looks like a number rather than like another customer's data.
+    org = resolve_organization_id(db, organization_id)
+
+    def count(*conditions):
+        stmt = scoped(select(func.count()).select_from(Lead), Lead, org)
+        for condition in conditions:
+            stmt = stmt.where(condition)
+        return db.scalar(stmt) or 0
+
+    total = count()
+    qualified = count(Lead.score >= 80)
+    new_leads = count(Lead.status == "new")
+    dnc = count(Lead.do_not_contact.is_(True))
 
     status_rows = db.execute(
-        select(Lead.status, func.count(Lead.id)).group_by(Lead.status).order_by(func.count(Lead.id).desc())
+        scoped(select(Lead.status, func.count(Lead.id)), Lead, org)
+        .group_by(Lead.status).order_by(func.count(Lead.id).desc())
     ).all()
     category_rows = db.execute(
-        select(Lead.category, func.count(Lead.id)).group_by(Lead.category).order_by(func.count(Lead.id).desc()).limit(10)
+        scoped(select(Lead.category, func.count(Lead.id)), Lead, org)
+        .group_by(Lead.category).order_by(func.count(Lead.id).desc()).limit(10)
     ).all()
 
     return {
+        "organization_id": org,
         "total_leads": total,
         "qualified_leads": qualified,
         "new_leads": new_leads,
@@ -187,6 +204,7 @@ def stats(db: Session = Depends(get_db)) -> dict:
 @app.get("/leads", response_model=list[LeadRead])
 def list_leads(
     db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
     status: str | None = None,
     category: str | None = None,
     state: str | None = None,
@@ -195,7 +213,8 @@ def list_leads(
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
 ) -> list[Lead]:
-    stmt = select(Lead).where(Lead.score >= min_score)
+    stmt = scoped(select(Lead), Lead, resolve_organization_id(db, organization_id))
+    stmt = stmt.where(Lead.score >= min_score)
 
     if status:
         stmt = stmt.where(Lead.status == status)
@@ -218,19 +237,36 @@ def list_leads(
     return list(db.scalars(stmt).all())
 
 
-@app.get("/leads/{lead_id}", response_model=LeadRead)
-def get_lead(lead_id: int, db: Session = Depends(get_db)) -> Lead:
+def _lead_in_scope(db: Session, lead_id: int, organization_id: int | None) -> Lead:
+    """Fetch a lead, treating another tenant's record as absent.
+
+    404 rather than 403 on purpose: a 403 confirms the id exists, which lets one
+    customer enumerate another's record ids.
+    """
     lead = db.get(Lead, lead_id)
-    if not lead:
+    org = resolve_organization_id(db, organization_id)
+    if not lead or lead.organization_id != org:
         raise HTTPException(status_code=404, detail="Lead not found")
     return lead
 
 
+@app.get("/leads/{lead_id}", response_model=LeadRead)
+def get_lead(
+    lead_id: int,
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> Lead:
+    return _lead_in_scope(db, lead_id, organization_id)
+
+
 @app.patch("/leads/{lead_id}", response_model=LeadRead)
-def update_lead(lead_id: int, payload: LeadUpdate, db: Session = Depends(get_db)) -> Lead:
-    lead = db.get(Lead, lead_id)
-    if not lead:
-        raise HTTPException(status_code=404, detail="Lead not found")
+def update_lead(
+    lead_id: int,
+    payload: LeadUpdate,
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> Lead:
+    lead = _lead_in_scope(db, lead_id, organization_id)
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(lead, field, value)
@@ -254,10 +290,14 @@ def delete_lead(lead_id: int, db: Session = Depends(get_db)) -> Response:
 @app.get("/exports/leads.csv")
 def export_leads_csv(
     db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
     min_score: int = Query(default=0, ge=0, le=100),
     status: str | None = None,
 ) -> Response:
-    stmt = select(Lead).where(Lead.score >= min_score, Lead.do_not_contact.is_(False))
+    # A bulk export is the worst place to miss the tenant filter: one request
+    # walks out with every customer's contact list in a single file.
+    stmt = scoped(select(Lead), Lead, resolve_organization_id(db, organization_id))
+    stmt = stmt.where(Lead.score >= min_score, Lead.do_not_contact.is_(False))
     if status:
         stmt = stmt.where(Lead.status == status)
 
