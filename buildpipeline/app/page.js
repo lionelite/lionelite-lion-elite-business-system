@@ -44,6 +44,42 @@ export default function Home() {
   const [selected, setSelected] = useState(initialLeads[0]);
   const [draft, setDraft] = useState(outreachFor(initialLeads[0]));
   const [form, setForm] = useState({ company: "", contact: "", email: "", city: "", services: "" });
+  const [syncState, setSyncState] = useState({ status: "idle", message: "CRM bridge ready" });
+
+  async function syncCRM(eventType, payload) {
+    setSyncState({ status: "syncing", message: "Syncing with Lion Elite Clinical CRM…" });
+    try {
+      const res = await fetch("/api/crm", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ event_type: eventType, payload })
+      });
+      const result = await res.json();
+      if (result.ok) {
+        setSyncState({ status: "synced", message: "Synced with Lion Elite Clinical CRM" });
+      } else {
+        setSyncState({ status: "pending", message: result.message || "CRM endpoint awaiting final Base44 connection" });
+      }
+      return result;
+    } catch (error) {
+      setSyncState({ status: "error", message: error.message || "CRM sync failed" });
+      return { ok: false, error: error.message };
+    }
+  }
+
+  function crmLead(lead) {
+    return {
+      external_id: String(lead.id),
+      clinic_name: lead.company,
+      contact_name: lead.contact,
+      email: lead.email,
+      location: lead.city,
+      services: lead.services,
+      icp_score: lead.score,
+      status: lead.stage,
+      source: "buildpipeline"
+    };
+  }
 
   const metrics = useMemo(() => ({
     total: leads.length,
@@ -52,7 +88,7 @@ export default function Home() {
     meetings: leads.filter(l => l.stage === "Call Booked").length
   }), [leads]);
 
-  function addLead(e) {
+  async function addLead(e) {
     e.preventDefault();
     if (!form.company.trim()) return;
     const lead = { id: Date.now(), ...form, score: scoreLead(form), stage: "New", last: "Not contacted", next: "Qualify" };
@@ -60,18 +96,25 @@ export default function Home() {
     setSelected(lead);
     setDraft(outreachFor(lead));
     setForm({ company: "", contact: "", email: "", city: "", services: "" });
+    await syncCRM("lead.upsert", crmLead(lead));
   }
 
-  function updateStage(stage) {
+  async function updateStage(stage) {
     setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, stage } : l));
-    setSelected(prev => ({ ...prev, stage }));
+    const updated = { ...selected, stage };
+    setSelected(updated);
+    await syncCRM("lead.upsert", crmLead(updated));
+    if (stage === "Call Booked") await syncCRM("meeting.upsert", { ...crmLead(updated), status: "scheduled" });
+    if (["Proposal","Won","Lost"].includes(stage)) await syncCRM("deal.upsert", { ...crmLead(updated), stage });
   }
 
-  function qualify() {
+  async function qualify() {
     const score = scoreLead(selected);
     const stage = score >= 75 ? "Qualified" : "New";
     setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, score, stage } : l));
-    setSelected(prev => ({ ...prev, score, stage }));
+    const updated = { ...selected, score, stage };
+    setSelected(updated);
+    await syncCRM("lead.upsert", crmLead(updated));
   }
 
   function generate() {
@@ -108,7 +151,10 @@ export default function Home() {
             <h1>AI SDR Command Center</h1>
             <p className="muted">Prove the acquisition engine internally, then sell the same system to other businesses.</p>
           </div>
-          <button className="primary" onClick={() => document.getElementById("add-lead")?.scrollIntoView({ behavior: "smooth" })}>+ Add Prospect</button>
+          <div>
+            <button className="primary" onClick={() => document.getElementById("add-lead")?.scrollIntoView({ behavior: "smooth" })}>+ Add Prospect</button>
+            <p className="muted" style={{marginTop:8,textAlign:"right",fontSize:12}}>{syncState.message}</p>
+          </div>
         </header>
 
         <div className="metrics">
@@ -161,8 +207,11 @@ export default function Home() {
             <textarea value={draft} onChange={e => setDraft(e.target.value)} />
             <div className="actions">
               <button onClick={() => navigator.clipboard?.writeText(draft)}>Copy</button>
-              <button onClick={() => updateStage("Contacted")}>Mark Sent</button>
-              <button onClick={() => updateStage("Call Booked")}>Mark Call Booked</button>
+              <button onClick={async () => {
+                await updateStage("Contacted");
+                await syncCRM("activity.create", { ...crmLead({ ...selected, stage: "Contacted" }), channel: "email", direction: "outbound", message: draft, status: "sent" });
+              }}>Mark Sent + Sync</button>
+              <button onClick={() => updateStage("Call Booked")}>Mark Call Booked + Sync</button>
             </div>
           </section>
 
