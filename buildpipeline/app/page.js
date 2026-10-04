@@ -40,6 +40,7 @@ Would a quick 10-minute walkthrough this week be worth it?
 }
 
 export default function Home() {
+  const clinicalCrmUrl = process.env.NEXT_PUBLIC_CLINICAL_CRM_URL || "https://app.base44.com/apps/6abf2f9a1efb94c996802962/editor/preview";
   const [leads, setLeads] = useState(initialLeads);
   const [selected, setSelected] = useState(initialLeads[0]);
   const [draft, setDraft] = useState(outreachFor(initialLeads[0]));
@@ -168,7 +169,10 @@ export default function Home() {
             <p className="muted">Prove the acquisition engine internally, then sell the same system to other businesses.</p>
           </div>
           <div>
-            <button className="primary" onClick={() => document.getElementById("add-lead")?.scrollIntoView({ behavior: "smooth" })}>+ Add Prospect</button>
+            <div style={{display:"flex",gap:8,justifyContent:"flex-end",flexWrap:"wrap"}}>
+              <a className="primary" href={clinicalCrmUrl} target="_blank" rel="noreferrer" style={{textDecoration:"none"}}>Open Clinical CRM ↗</a>
+              <button className="primary" onClick={() => document.getElementById("add-lead")?.scrollIntoView({ behavior: "smooth" })}>+ Add Prospect</button>
+            </div>
             <p className="muted" style={{marginTop:8,textAlign:"right",fontSize:12}}>{syncState.message}</p>
           </div>
         </header>
