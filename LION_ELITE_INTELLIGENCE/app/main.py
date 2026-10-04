@@ -15,7 +15,9 @@ from .activities import router as activities_router
 from .agent_control import router as agent_control_router
 from .database import Base, engine, get_db
 from .delivery import router as delivery_router
+from .ingest import router as ingest_router
 from .integrations import router as integrations_router
+from .migrations import backfill_organization_id, run_migrations
 from .models import Lead
 from .pipeline import router as pipeline_router
 from .sales import router as sales_router
@@ -26,7 +28,19 @@ from .workspace import router as workspace_router
 from .billing import router as billing_router
 
 Base.metadata.create_all(bind=engine)
+
+# create_all builds missing tables but never alters existing ones, so a new
+# column on an existing model would be declared by the ORM and absent from the
+# database — the app boots and then fails on the first read. Additive
+# migrations close that gap and are safe to re-run on every deploy.
+_MIGRATIONS = run_migrations(engine)
+_BACKFILL = backfill_organization_id(engine)
+
 logger = logging.getLogger("lion-elite-free-runtime")
+if _MIGRATIONS["columns"] or _MIGRATIONS["indexes"]:
+    logger.info("schema migrations applied: %s", _MIGRATIONS)
+if any(_BACKFILL.values()):
+    logger.info("tenancy backfill: %s", _BACKFILL)
 
 
 @asynccontextmanager
@@ -70,6 +84,7 @@ app.include_router(sales_router)
 app.include_router(activities_router)
 app.include_router(agent_control_router)
 app.include_router(delivery_router)
+app.include_router(ingest_router)
 app.include_router(integrations_router)
 app.include_router(pipeline_router)
 app.include_router(saas_router)
