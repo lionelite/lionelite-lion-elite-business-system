@@ -68,16 +68,32 @@ export default function Home() {
   }
 
   function crmLead(lead) {
+    const statusMap = {
+      "New": "new",
+      "Qualified": "qualified",
+      "Outreach Ready": "qualified",
+      "Contacted": "contacted",
+      "Replied": "responded",
+      "Follow-Up": "responded",
+      "Call Booked": "meeting_booked",
+      "Proposal": "proposal",
+      "Won": "client",
+      "Lost": "not_interested"
+    };
+    const [city = "", state = ""] = (lead.city || "").split(",").map(v => v.trim());
     return {
       external_id: String(lead.id),
       clinic_name: lead.company,
       contact_name: lead.contact,
       email: lead.email,
-      location: lead.city,
+      city,
+      state,
       services: lead.services,
       icp_score: lead.score,
-      status: lead.stage,
-      source: "buildpipeline"
+      status: statusMap[lead.stage] || "new",
+      source: "buildpipeline",
+      sync_source: "buildpipeline",
+      last_synced_at: new Date().toISOString()
     };
   }
 
