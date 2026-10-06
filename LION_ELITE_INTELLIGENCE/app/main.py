@@ -27,6 +27,7 @@ from .tenancy import OrganizationScope, resolve_organization_id, scoped
 from .saas import router as saas_router
 from .workspace import router as workspace_router
 from .billing import router as billing_router
+from .campaigns import router as campaigns_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -91,6 +92,7 @@ app.include_router(pipeline_router)
 app.include_router(saas_router)
 app.include_router(workspace_router)
 app.include_router(billing_router)
+app.include_router(campaigns_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
