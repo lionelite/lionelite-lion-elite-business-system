@@ -67,6 +67,9 @@ export default function Home() {
   // looking at the screen.
   const [connection, setConnection] = useState({ state: "loading", detail: "" });
   const [busy, setBusy] = useState(false);
+  // The nav buttons were decorative — five labels, none of which did anything.
+  const [view, setView] = useState("Pipeline");
+  const [campaigns, setCampaigns] = useState([]);
 
   const load = useCallback(async () => {
     try {
@@ -93,7 +96,38 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  const loadCampaigns = useCallback(async () => {
+    try {
+      const body = await (await fetch("/api/campaigns", { cache: "no-store" })).json();
+      if (body.ok) setCampaigns(body.campaigns);
+    } catch {
+      // The campaign list is secondary to the prospect list; a failure here
+      // must not blank the dashboard, and the connection banner already
+      // reports a CRM that is unreachable.
+    }
+  }, []);
+
+  useEffect(() => { load(); loadCampaigns(); }, [load, loadCampaigns]);
+
+  // Editing the qualification threshold is the smallest useful proof that ICP
+  // is data rather than code: change it here, and re-scoring answers
+  // differently with no deploy.
+  async function updateThreshold(campaign, value) {
+    const qualified_at = Number(value);
+    if (!Number.isFinite(qualified_at) || busy) return;
+    setBusy(true);
+    try {
+      const body = await (await fetch("/api/campaigns", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: campaign.id, icp: { qualified_at } })
+      })).json();
+      if (body.ok) setCampaigns(prev => prev.map(c => c.id === body.campaign.id ? body.campaign : c));
+      else setConnection({ state: "error", detail: body.error || "Could not update the campaign" });
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => { setDraft(selected ? outreachFor(selected) : ""); }, [selected]);
 
@@ -199,11 +233,15 @@ export default function Home() {
           <p className="muted">Automated SDR Operating System</p>
         </div>
         <nav>
-          <button className="nav active">Pipeline</button>
-          <button className="nav">Prospects</button>
-          <button className="nav">Outreach</button>
-          <button className="nav">Meetings</button>
-          <button className="nav">Analytics</button>
+          {["Pipeline","Prospects","Campaigns","Outreach","Analytics"].map(item => (
+            <button
+              key={item}
+              className={`nav ${view === item ? "active" : ""}`}
+              onClick={() => setView(item)}
+            >
+              {item}
+            </button>
+          ))}
         </nav>
         <div className="workspace">
           <small>ACTIVE WORKSPACE</small>
@@ -229,6 +267,88 @@ export default function Home() {
           <Metric label="Calls Booked" value={metrics.meetings} />
         </div>
 
+        {view === "Prospects" && (
+          <section className="card">
+            <div className="cardHead"><div><h2>Prospects</h2><p>Every prospect in this workspace, newest scoring first.</p></div></div>
+            <div className="tableWrap">
+              <table>
+                <thead><tr><th>Company</th><th>Contact</th><th>Email</th><th>Phone</th><th>Location</th><th>Score</th><th>Stage</th><th>Source</th></tr></thead>
+                <tbody>
+                  {leads.map(lead => (
+                    <tr key={lead.id} onClick={() => setSelected(lead)} className={selected?.id === lead.id ? "selected" : ""}>
+                      <td><strong>{lead.company}</strong><span>{lead.services}</span></td>
+                      <td>{lead.contact || "\u2014"}</td>
+                      <td>{lead.email || "\u2014"}</td>
+                      <td>{lead.phone || "\u2014"}</td>
+                      <td>{[lead.city, lead.state].filter(Boolean).join(", ") || "\u2014"}</td>
+                      <td><span className={`score ${lead.score >= 85 ? "hot" : lead.score >= 60 ? "warm" : ""}`}>{lead.score}</span></td>
+                      <td>{lead.stage}</td>
+                      <td>{lead.source}</td>
+                    </tr>
+                  ))}
+                  {!leads.length && <tr><td colSpan={8} className="muted">No prospects yet. {connection.detail}</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {view === "Campaigns" && (
+          <section className="card">
+            <div className="cardHead"><div><h2>Campaigns</h2><p>ICP criteria are data. Change the threshold and re-score — no deploy.</p></div></div>
+            {!campaigns.length && <p className="muted">No campaigns. {connection.detail}</p>}
+            {campaigns.map(campaign => (
+              <div key={campaign.id} className="card" style={{marginTop:14}}>
+                <h3>{campaign.name} <span className="muted">({campaign.status})</span></h3>
+                <div className="row"><span>Objective</span><strong>{campaign.objective}</strong></div>
+                <div className="row">
+                  <span>Qualified at</span>
+                  <input
+                    type="number" min={0} max={100} defaultValue={campaign.icp?.qualified_at ?? 60}
+                    onBlur={e => updateThreshold(campaign, e.target.value)}
+                    style={{width:72}}
+                  />
+                </div>
+                <div className="row"><span>Cadence (days)</span><strong>{(campaign.sequence_days || []).join(", ") || "\u2014"}</strong></div>
+                <div className="row"><span>Target states</span><strong>{(campaign.icp?.target_states || []).join(", ") || "any"}</strong></div>
+                <label>Category weights</label>
+                <div className="flow">
+                  {Object.entries(campaign.icp?.category_weights || {})
+                    .sort((a,b) => b[1]-a[1])
+                    .map(([name, points]) => <b key={name}>{name} +{points}</b>)}
+                </div>
+                <label>Never contacted ({(campaign.icp?.exclude_terms || []).length} terms)</label>
+                <p className="muted">{(campaign.icp?.exclude_terms || []).join(" \u00b7 ")}</p>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {view === "Analytics" && (
+          <section className="card">
+            <div className="cardHead"><div><h2>Analytics</h2><p>Counts come from the CRM, so they match the system of record.</p></div></div>
+            <div className="metrics">
+              <Metric label="Prospects" value={metrics.total} />
+              <Metric label="Qualified" value={metrics.qualified} />
+              <Metric label="Contacted" value={metrics.contacted} />
+              <Metric label="Calls Booked" value={metrics.meetings} />
+            </div>
+            <label>By stage</label>
+            <div className="flow">
+              {stages.map(stage => {
+                const count = leads.filter(l => l.stage === stage).length;
+                return count ? <b key={stage}>{stage}: {count}</b> : null;
+              })}
+            </div>
+            {/* Reply rate, booking rate and revenue per meeting are Phase 11 and
+                need message and meeting records that do not exist yet. Showing
+                a zero for them would read as "none happened" rather than "not
+                measured", so they are left out until they are real. */}
+            <p className="muted">Reply, booking and revenue metrics arrive with the message and meeting records (Phase 11). Not shown rather than shown as zero.</p>
+          </section>
+        )}
+
+        {(view === "Pipeline" || view === "Outreach") && (<>
         <div className="grid">
           <section className="card pipeline">
             <div className="cardHead">
@@ -308,6 +428,7 @@ export default function Home() {
             </form>
           </section>
         </div>
+        </>)}
 
         <section className="card roadmap">
           <p className="eyebrow">AUTOMATION ROADMAP</p>
