@@ -35,6 +35,7 @@ from fastapi import HTTPException, Query
 from sqlalchemy import false, func, select
 from sqlalchemy.orm import Session
 
+from .models import Lead
 from .saas import Organization
 
 
@@ -96,3 +97,21 @@ def scoped(stmt, model, organization_id: int | None):
     if organization_id is None:
         return stmt.where(false())
     return stmt.where(model.organization_id == organization_id)
+
+
+def lead_in_scope(db: Session, lead_id: int, organization_id: int | None) -> Lead:
+    """Fetch a lead, treating another tenant's record as absent.
+
+    404 rather than 403 on purpose: a 403 confirms the id exists, which lets one
+    customer enumerate another's record ids by walking the range.
+
+    Lives here rather than in `main` so every router scopes single-record access
+    the same way. It was in `main` while `main` was the only module doing it,
+    and `activities` — which reads a lead's notes and its owner's phone number —
+    did not do it at all.
+    """
+    lead = db.get(Lead, lead_id)
+    org = resolve_organization_id(db, organization_id)
+    if not lead or lead.organization_id != org:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return lead

@@ -23,11 +23,12 @@ from .pipeline import router as pipeline_router
 from .sales import router as sales_router
 from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
-from .tenancy import OrganizationScope, resolve_organization_id, scoped
+from .tenancy import OrganizationScope, lead_in_scope, resolve_organization_id, scoped
 from .saas import router as saas_router
 from .workspace import router as workspace_router
 from .billing import router as billing_router
 from .campaigns import router as campaigns_router
+from .replies import router as sdr_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -93,6 +94,7 @@ app.include_router(saas_router)
 app.include_router(workspace_router)
 app.include_router(billing_router)
 app.include_router(campaigns_router)
+app.include_router(sdr_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
@@ -239,26 +241,13 @@ def list_leads(
     return list(db.scalars(stmt).all())
 
 
-def _lead_in_scope(db: Session, lead_id: int, organization_id: int | None) -> Lead:
-    """Fetch a lead, treating another tenant's record as absent.
-
-    404 rather than 403 on purpose: a 403 confirms the id exists, which lets one
-    customer enumerate another's record ids.
-    """
-    lead = db.get(Lead, lead_id)
-    org = resolve_organization_id(db, organization_id)
-    if not lead or lead.organization_id != org:
-        raise HTTPException(status_code=404, detail="Lead not found")
-    return lead
-
-
 @app.get("/leads/{lead_id}", response_model=LeadRead)
 def get_lead(
     lead_id: int,
     db: Session = Depends(get_db),
     organization_id: int | None = Depends(OrganizationScope),
 ) -> Lead:
-    return _lead_in_scope(db, lead_id, organization_id)
+    return lead_in_scope(db, lead_id, organization_id)
 
 
 @app.patch("/leads/{lead_id}", response_model=LeadRead)
@@ -268,7 +257,7 @@ def update_lead(
     db: Session = Depends(get_db),
     organization_id: int | None = Depends(OrganizationScope),
 ) -> Lead:
-    lead = _lead_in_scope(db, lead_id, organization_id)
+    lead = lead_in_scope(db, lead_id, organization_id)
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(lead, field, value)

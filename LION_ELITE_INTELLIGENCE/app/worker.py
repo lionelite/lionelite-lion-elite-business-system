@@ -9,11 +9,13 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from sqlalchemy import func, select
 
 from .activities import LeadActivity
-from .automation_rules import classify_reply, daily_send_limit, inside_outreach_window, sending_enabled
+from .automation_rules import daily_send_limit, inside_outreach_window, sending_enabled
 from .database import Base, SessionLocal, engine
 from .google_services import gmail_service, send_gmail
 from .models import Lead
 from .outreach import build_partnership_email
+from .replies import apply_reply_to_lead
+from .sdr import classify_reply
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("lei-worker")
@@ -117,19 +119,23 @@ def process_replies() -> dict:
                 continue
 
             text = _body_text(message.get("payload", {}))
-            classification = classify_reply(text)
-            if classification == "opt_out":
-                lead.do_not_contact = True
-                lead.status = "do_not_contact"
-            elif classification == "interested":
-                lead.status = "qualified"
+            # The rich classification, not the three-value legacy string. The
+            # string could not express "stop the sequence but this is not an
+            # opt-out", so a reply it failed to classify came back "neutral" and
+            # the branch below scheduled a follow-up a day later. An
+            # unclassified human reply is exactly the case that must not keep
+            # sending.
+            reply = classify_reply(text)
+            apply_reply_to_lead(lead, reply)
 
             db.add(LeadActivity(
                 lead_id=lead.id,
-                activity_type="email",
-                outcome=f"reply_{classification}",
+                activity_type="reply",
+                outcome=f"reply_{reply['intent']}",
                 notes=text[:2000],
-                next_follow_up_at=None if classification == "opt_out" else datetime.utcnow() + timedelta(days=1),
+                # Driven by stop_sequence rather than by the intent name, so a
+                # new intent cannot default into scheduling another touch.
+                next_follow_up_at=None if reply["stop_sequence"] else datetime.utcnow() + timedelta(days=1),
             ))
             db.commit()
             processed += 1
