@@ -478,3 +478,105 @@ def test_the_next_action_distinguishes_what_needs_a_person():
     assert recommended_next_action("outreach_ready")["requires_human"] is True
     assert recommended_next_action("do_not_contact")["requires_human"] is False
     assert recommended_next_action("something-nobody-defined")["requires_human"] is True
+
+
+# --- the update path -----------------------------------------------------
+
+
+def test_a_score_sent_to_patch_is_actually_stored(client):
+    # Found by running it, not by reading it. `LeadUpdate` had no `score` field,
+    # Pydantic v2 drops unknown fields by default, and PATCH answered 200 — so
+    # the UI scored a prospect against the campaign ICP, reported success, and
+    # the record kept its old number.
+    (org,) = reset()
+    lead_id = seed_lead(org, score=40)
+
+    response = client.patch(f"/leads/{lead_id}", json={"status": "call_booked", "score": 75})
+    assert response.status_code == 200
+    assert response.json()["score"] == 75
+
+    with SessionLocal() as db:
+        assert db.get(Lead, lead_id).score == 75
+
+
+def test_an_unknown_field_is_refused_rather_than_dropped(client):
+    # The root cause of the above, fixed as a class: a field this schema does
+    # not know is now a 422. A silently discarded field is indistinguishable
+    # from a saved one at the call site.
+    (org,) = reset()
+    lead_id = seed_lead(org)
+    assert client.patch(f"/leads/{lead_id}", json={"stage": "Call Booked"}).status_code == 422
+
+
+def test_suppression_cannot_be_cleared_through_patch(client):
+    # `replies.py` keeps it one-way, and a PATCH that could set it back to
+    # false would have made that withdrawal of consent reversible by a stale
+    # client echoing the whole record back.
+    (org,) = reset()
+    lead_id = seed_lead(org)
+    client.post(f"/sdr/leads/{lead_id}/replies", json={"text": "unsubscribe"})
+
+    response = client.patch(f"/leads/{lead_id}", json={"do_not_contact": False})
+    assert response.status_code == 409
+
+    with SessionLocal() as db:
+        assert db.get(Lead, lead_id).do_not_contact is True
+
+
+def test_clearing_do_not_contact_on_a_contactable_lead_is_not_an_error(client):
+    # Only the transition away from suppressed is refused. A no-op false on a
+    # lead that was never suppressed is just a no-op.
+    (org,) = reset()
+    lead_id = seed_lead(org)
+    assert client.patch(f"/leads/{lead_id}", json={"do_not_contact": False}).status_code == 200
+
+
+# --- deletion ------------------------------------------------------------
+
+
+def test_a_tenant_cannot_delete_another_tenants_lead(client):
+    # This endpoint fetched by id alone. The read leaks exposed data; this one
+    # destroyed the record, and the activity history with it via the cascade.
+    first, second = reset(2)
+    other = seed_lead(second, "Second Tenant Clinic")
+
+    assert client.delete(f"/leads/{other}?organization_id={first}").status_code == 404
+    with SessionLocal() as db:
+        assert db.get(Lead, other) is not None
+
+
+def test_a_suppressed_lead_is_not_deletable(client):
+    # The row is the suppression entry. Delete it and the next import of the
+    # same purchased list has no record of the opt-out, re-creates the lead, and
+    # starts contacting them again.
+    (org,) = reset()
+    lead_id = seed_lead(org)
+    client.post(f"/sdr/leads/{lead_id}/replies", json={"text": "please remove me"})
+
+    assert client.delete(f"/leads/{lead_id}").status_code == 409
+    with SessionLocal() as db:
+        assert db.get(Lead, lead_id) is not None
+
+
+def test_an_ordinary_lead_is_still_deletable(client):
+    (org,) = reset()
+    lead_id = seed_lead(org)
+    assert client.delete(f"/leads/{lead_id}").status_code == 204
+
+
+def test_the_summary_states_permission_before_fit(client):
+    # A suppressed prospect reading "scores 75 and is qualified" invites an
+    # operator to act on the fit and overlook the permission, and only one of
+    # those two facts matters for this record.
+    (org,) = reset()
+    lead_id = seed_lead(org)
+    campaign = client.post(
+        "/campaigns",
+        json={"name": "Clinical", "slug": "clinical", "icp": LION_ELITE_CLINICAL_ICP},
+        headers=AUTH,
+    ).json()
+    client.post(f"/sdr/leads/{lead_id}/replies", json={"text": "unsubscribe"})
+
+    summary = client.get(f"/sdr/leads/{lead_id}/brief?campaign_id={campaign['id']}").json()["qualification"]["summary"]
+    assert "must not be contacted" in summary
+    assert "is qualified" not in summary

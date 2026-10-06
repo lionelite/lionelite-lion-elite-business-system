@@ -258,8 +258,23 @@ def update_lead(
     organization_id: int | None = Depends(OrganizationScope),
 ) -> Lead:
     lead = lead_in_scope(db, lead_id, organization_id)
+    changes = payload.model_dump(exclude_unset=True)
 
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    # Suppression is one-way: settable, never clearable. `replies.py` writes it
+    # when someone opts out, and a PATCH that could set it back to false would
+    # make that withdrawal of consent reversible by a mis-click or a stale
+    # client payload echoing the whole record back. Reinstating contact needs
+    # fresh consent, which is not a field update.
+    if changes.get("do_not_contact") is False and lead.do_not_contact:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "do_not_contact cannot be cleared. This contact opted out; "
+                "reinstating contact requires fresh consent, not a field update."
+            ),
+        )
+
+    for field, value in changes.items():
         setattr(lead, field, value)
 
     db.commit()
@@ -268,10 +283,27 @@ def update_lead(
 
 
 @app.delete("/leads/{lead_id}", status_code=204)
-def delete_lead(lead_id: int, db: Session = Depends(get_db)) -> Response:
-    lead = db.get(Lead, lead_id)
-    if not lead:
-        raise HTTPException(status_code=404, detail="Lead not found")
+def delete_lead(
+    lead_id: int,
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> Response:
+    # Was unscoped: it fetched by id alone, so one tenant could delete another
+    # tenant's lead — and its activity history with it, via the cascade. The
+    # read leaks were recoverable; this one destroyed the record.
+    lead = lead_in_scope(db, lead_id, organization_id)
+
+    # A suppressed contact is not deleted. The row is the evidence that they
+    # opted out; delete it and the next import of the same list has no record
+    # of the request, re-creates the lead, and starts contacting them again.
+    if lead.do_not_contact:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "This contact opted out. The record is the suppression entry — "
+                "deleting it would let a later import contact them again."
+            ),
+        )
 
     db.delete(lead)
     db.commit()

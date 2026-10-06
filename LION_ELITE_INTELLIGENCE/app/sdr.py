@@ -270,6 +270,16 @@ def qualification_summary(evaluation: dict, lead: dict | None = None) -> str:
     lead = lead or {}
     name = lead.get("company_name") or "This prospect"
 
+    # Permission is reported before fit. "Scores 75 and is qualified" read
+    # alongside a do-not-contact badge is an invitation to act on the fit and
+    # ignore the permission, and the fit is the part that does not matter here.
+    if lead.get("do_not_contact"):
+        score = evaluation.get("score", 0)
+        return (
+            f"{name} opted out and must not be contacted. "
+            f"(Fit against the current ICP would be {score}; it is not actionable.)"
+        )
+
     if evaluation.get("excluded"):
         why = (evaluation.get("reasons") or ["excluded"])[0]
         return f"{name} must not be contacted for this campaign — {why}."

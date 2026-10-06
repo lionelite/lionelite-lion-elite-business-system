@@ -70,6 +70,11 @@ export default function Home() {
   // The nav buttons were decorative — five labels, none of which did anything.
   const [view, setView] = useState("Pipeline");
   const [campaigns, setCampaigns] = useState([]);
+  const [brief, setBrief] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  // What the last save actually did, shown next to the control that did it. A
+  // persisted change and a discarded one looked identical before this.
+  const [saveNote, setSaveNote] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -107,7 +112,24 @@ export default function Home() {
     }
   }, []);
 
+  const loadBrief = useCallback(async (leadId) => {
+    if (!leadId) { setBrief(null); return; }
+    try {
+      const body = await (await fetch(`/api/prospects/${leadId}/brief`, { cache: "no-store" })).json();
+      setBrief(body.ok ? body.brief : null);
+    } catch {
+      // The brief is additive context. Losing it must not break the pane that
+      // shows the contact details someone is about to dial.
+      setBrief(null);
+    }
+  }, []);
+
   useEffect(() => { load(); loadCampaigns(); }, [load, loadCampaigns]);
+  useEffect(() => {
+    loadBrief(selected?.id);
+    setReplyText("");
+    setSaveNote("");
+  }, [selected?.id, loadBrief]);
 
   // Editing the qualification threshold is the smallest useful proof that ICP
   // is data rather than code: change it here, and re-scoring answers
@@ -131,12 +153,29 @@ export default function Home() {
 
   useEffect(() => { setDraft(selected ? outreachFor(selected) : ""); }, [selected]);
 
-  const metrics = useMemo(() => ({
-    total: leads.length,
-    qualified: leads.filter(l => l.score >= 75).length,
-    contacted: leads.filter(l => ["Contacted","Replied","Follow-Up","Call Booked","Proposal","Won"].includes(l.stage)).length,
-    meetings: leads.filter(l => l.stage === "Call Booked").length
-  }), [leads]);
+  // Counted off the stage, not off a score threshold held here. The old version
+  // used `score >= 75`, which was a second copy of the campaign's qualified_at
+  // living in the browser — edit the threshold in Campaigns and this number
+  // kept answering with the old one. The stage is set by scoring against the
+  // campaign, so it already carries the current threshold.
+  //
+  // And a suppressed contact is excluded from every count. They opted out, so
+  // they cannot convert; counting them inflates the only numbers anyone here
+  // is judged on.
+  const QUALIFIED_STAGES = ["Qualified","Outreach Ready","Contacted","Replied","Follow-Up","Call Booked","Proposal","Won"];
+  // One definition, used by the detail pane, the studio and the draft guard.
+  // Three separate inline checks is how one of them ends up missing the case.
+  const suppressed = Boolean(selected?.doNotContact || selected?.stage === "Do Not Contact");
+
+  const metrics = useMemo(() => {
+    const live = leads.filter(l => !l.doNotContact && l.stage !== "Do Not Contact");
+    return {
+      total: leads.length,
+      qualified: live.filter(l => QUALIFIED_STAGES.includes(l.stage)).length,
+      contacted: live.filter(l => ["Contacted","Replied","Follow-Up","Call Booked","Proposal","Won"].includes(l.stage)).length,
+      meetings: live.filter(l => l.stage === "Call Booked").length
+    };
+  }, [leads]);
 
   async function addLead(e) {
     e.preventDefault();
@@ -172,10 +211,88 @@ export default function Home() {
     }
   }
 
-  function updateStage(stage) {
-    if (!selected) return;
+  // Writes to the CRM. The previous version set React state only, so moving a
+  // prospect to "Call Booked" reverted on the next reload — the pipeline looked
+  // editable and remembered nothing, including the one event this product
+  // exists to produce.
+  async function updateStage(stage) {
+    if (!selected || busy) return;
+    const previous = selected.stage;
+
+    // Optimistic, then reconciled against what the CRM returns. A dropdown that
+    // waits on a round trip feels broken; one that never reconciles lies.
     setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, stage } : l));
     setSelected(prev => ({ ...prev, stage }));
+    setBusy(true);
+    setSaveNote("Saving…");
+
+    try {
+      const body = await (await fetch(`/api/prospects/${selected.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stage })
+      })).json();
+
+      if (!body.ok) {
+        // Rolled back, because leaving the new stage on screen would show a
+        // change that is not in the system of record.
+        setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, stage: previous } : l));
+        setSelected(prev => ({ ...prev, stage: previous }));
+        setSaveNote(body.mode === "pending"
+          ? `Not saved — set ${(body.missing || []).join(", ")}`
+          : `Not saved — ${body.error || body.message || "CRM refused the change"}`);
+        return;
+      }
+      setSaveNote(`Saved: ${stage}`);
+      if (body.prospect) {
+        setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, ...body.prospect } : l));
+        setSelected(prev => ({ ...prev, ...body.prospect }));
+      }
+    } catch (error) {
+      setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, stage: previous } : l));
+      setSelected(prev => ({ ...prev, stage: previous }));
+      setSaveNote(`Not saved — ${error.message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Record an inbound reply. The CRM classifies it and applies the consequence
+  // — suppression on an opt-out, written to the lead — so this reports what
+  // happened to the record rather than what it recommended.
+  async function logReply() {
+    if (!selected || busy || !replyText.trim()) return;
+    setBusy(true);
+    setSaveNote("Recording reply…");
+    try {
+      const body = await (await fetch(`/api/prospects/${selected.id}/replies`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text: replyText })
+      })).json();
+
+      if (!body.ok) {
+        setSaveNote(body.mode === "pending"
+          ? `Not recorded — set ${(body.missing || []).join(", ")}`
+          : `Not recorded — ${body.error || "CRM refused it"}`);
+        return;
+      }
+
+      const result = body.result || {};
+      const intent = result.classification?.intent || "unknown";
+      setSaveNote(
+        result.suppressed
+          ? `Recorded as ${intent}. Contact suppressed — no further sends.`
+          : `Recorded as ${intent}. ${result.sequence_stopped ? "Sequence stopped." : "Cadence continues."}`
+      );
+      setReplyText("");
+      await load();
+      await loadBrief(selected.id);
+    } catch (error) {
+      setSaveNote(`Not recorded — ${error.message}`);
+    } finally {
+      setBusy(false);
+    }
   }
 
   // Scores through the campaign rather than locally, and surfaces the reasons.
@@ -209,8 +326,28 @@ export default function Home() {
       // An excluded prospect is not a low score — it is one this campaign must
       // not contact, so it goes to Do Not Contact rather than back to New.
       const stage = body.excluded ? "Do Not Contact" : body.qualified ? "Qualified" : "New";
+      setSelected(prev => ({ ...prev, reasons: body.reasons }));
+
+      // Persisted, not just rendered. A score computed against the campaign ICP
+      // and then thrown away means the next person to open this record sees the
+      // old number, and the qualified list cannot be filtered on it.
+      const saved = await (await fetch(`/api/prospects/${selected.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stage, score: body.score })
+      })).json();
+
+      if (!saved.ok) {
+        setSaveNote(saved.mode === "pending"
+          ? `Scored ${body.score}, not saved — set ${(saved.missing || []).join(", ")}`
+          : `Scored ${body.score}, not saved — ${saved.error || saved.message || "CRM refused it"}`);
+        return;
+      }
+
       setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, score: body.score, stage } : l));
       setSelected(prev => ({ ...prev, score: body.score, stage, reasons: body.reasons }));
+      setSaveNote(`Scored ${body.score} — ${stage}`);
+      await loadBrief(selected.id);
     } catch (error) {
       setConnection({ state: "error", detail: error.message });
     } finally {
@@ -218,11 +355,18 @@ export default function Home() {
     }
   }
 
-  function generate() {
+  async function generate() {
     if (!selected) return;
-    const nextDraft = outreachFor(selected);
-    setDraft(nextDraft);
-    if (selected.stage === "Qualified" || selected.stage === "New") updateStage("Outreach Ready");
+    // Refuses on a suppressed contact. Drafting is harmless on its own, but a
+    // draft sitting in the pane next to a "Do Not Contact" badge is an
+    // invitation to paste it into a mail client.
+    if (selected.doNotContact || selected.stage === "Do Not Contact") {
+      setDraft("");
+      setSaveNote("This contact is suppressed. No outreach may be drafted or sent.");
+      return;
+    }
+    setDraft(outreachFor(selected));
+    if (selected.stage === "Qualified" || selected.stage === "New") await updateStage("Outreach Ready");
   }
 
   return (
@@ -359,7 +503,12 @@ export default function Home() {
                 <thead><tr><th>Company</th><th>Location</th><th>Score</th><th>Stage</th><th>Next Action</th></tr></thead>
                 <tbody>
                   {leads.map(lead => (
-                    <tr key={lead.id} onClick={() => { setSelected(lead); setDraft(outreachFor(lead)); }} className={selected?.id === lead.id ? "selected" : ""}>
+                    <tr key={lead.id} onClick={() => {
+                      setSelected(lead);
+                      // The guard has to be here too: this is what actually put
+                      // a drafted email on screen for an opted-out contact.
+                      setDraft(lead.doNotContact || lead.stage === "Do Not Contact" ? "" : outreachFor(lead));
+                    }} className={selected?.id === lead.id ? "selected" : ""}>
                       <td><strong>{lead.company}</strong><span>{lead.services}</span></td>
                       <td>{lead.city}</td>
                       <td><span className={`score ${lead.score >= 85 ? "hot" : lead.score >= 75 ? "warm" : ""}`}>{lead.score}</span></td>
@@ -384,12 +533,87 @@ export default function Home() {
                 <h2>{selected.company}</h2>
                 <p className="muted">{[selected.city, selected.services].filter(Boolean).join(" · ")}</p>
                 <div className="scoreBlock"><span>ICP Score</span><strong>{selected.score}/100</strong></div>
-                <button onClick={qualify}>Re-score Prospect</button>
+
+                {/* The suppression state, stated before anything that could act
+                    on this record. It is one-way in the CRM, so there is no
+                    toggle here — a control that appeared to undo it would
+                    misrepresent what the record does. */}
+                {suppressed && (
+                  <p className="muted"><strong>Do not contact.</strong> This contact opted out. No outreach, no sequence, no draft.</p>
+                )}
+
+                <button onClick={qualify} disabled={busy}>Re-score Prospect</button>
                 <label>Pipeline Stage</label>
-                <select value={selected.stage} onChange={e => updateStage(e.target.value)}>
+                <select value={selected.stage} disabled={busy} onChange={e => updateStage(e.target.value)}>
                   {stages.map(s => <option key={s}>{s}</option>)}
                 </select>
-                <button className="primary full" onClick={generate}>Generate Personalized Outreach</button>
+
+                {/* What the last action actually did. Before this, a change the
+                    CRM never received looked exactly like one it saved. */}
+                {saveNote && <p className="muted">{saveNote}</p>}
+
+                <button className="primary full" onClick={generate} disabled={busy || suppressed}>Generate Personalized Outreach</button>
+
+                {/* Why this prospect fits, from the campaign's own ICP reasons
+                    rather than re-derived here, so the prose and the number
+                    cannot disagree. */}
+                {brief?.qualification?.summary && (
+                  <>
+                    <label>Qualification</label>
+                    <p className="muted">{brief.qualification.summary}</p>
+                    {/* The brief re-evaluates against the campaign ICP live, so
+                        it can disagree with the number stored on the record —
+                        after an ICP edit, or after the prospect gained a phone
+                        number. Showing both without saying which is which is
+                        how an operator loses confidence in the score. */}
+                    {typeof brief.qualification.score === "number"
+                      && brief.qualification.score !== selected.score && (
+                      <p className="muted">
+                        Stored score is {selected.score}; against the current ICP this
+                        re-evaluates to {brief.qualification.score}. Re-score to update the record.
+                      </p>
+                    )}
+                  </>
+                )}
+                {brief && !brief.qualification && (
+                  <p className="muted">{brief.qualification_unavailable}</p>
+                )}
+
+                {brief?.next_action && (
+                  <>
+                    <label>Next action</label>
+                    <p className="muted">
+                      {brief.next_action.action}
+                      {brief.next_action.requires_human ? " (needs a person)" : ""}
+                    </p>
+                  </>
+                )}
+
+                {brief?.last_reply && (
+                  <>
+                    <label>Last reply</label>
+                    <p className="muted">
+                      Read as <strong>{brief.last_reply.classification?.intent}</strong>
+                      {brief.last_reply.classification?.objections?.length
+                        ? ` · objections: ${brief.last_reply.classification.objections.join(", ")}`
+                        : ""}
+                    </p>
+                  </>
+                )}
+
+                {/* Logging a reply is the one thing that needs no send switch
+                    and no credential, so it is the part of the loop that can
+                    run today: outreach goes out by hand, the answer comes back
+                    in here, and the classification decides whether anything
+                    further may be sent. */}
+                <label>Log an inbound reply</label>
+                <textarea
+                  rows={4}
+                  value={replyText}
+                  placeholder="Paste what they wrote back. An opt-out suppresses the contact."
+                  onChange={e => setReplyText(e.target.value)}
+                />
+                <button onClick={logReply} disabled={busy || !replyText.trim()}>Record Reply</button>
               </>
             ) : (
               <p className="muted">
@@ -408,12 +632,28 @@ export default function Home() {
         <div className="grid lower">
           <section className="card">
             <div className="cardHead"><div><h2>SDR Message Studio</h2><p>Personalized first-touch messaging for the selected prospect.</p></div></div>
-            <textarea value={draft} onChange={e => setDraft(e.target.value)} />
-            <div className="actions">
-              <button onClick={() => navigator.clipboard?.writeText(draft)}>Copy</button>
-              <button onClick={() => updateStage("Contacted")}>Mark Sent</button>
-              <button onClick={() => updateStage("Call Booked")}>Mark Call Booked</button>
-            </div>
+            {/* A suppressed contact gets no draft, no copy button and no "mark
+                sent". The classifier suppressing them in the database is only
+                half the guarantee — a ready-to-paste email sitting under a
+                "Do not contact" badge is an invitation to send it, and nothing
+                in the backend can stop a human copying text off a screen. */}
+            {suppressed ? (
+              <p className="muted">
+                This contact opted out. No message is drafted for them, and none may be sent.
+              </p>
+            ) : (
+              <>
+                <textarea value={draft} onChange={e => setDraft(e.target.value)} />
+                <div className="actions">
+                  <button onClick={() => navigator.clipboard?.writeText(draft)}>Copy</button>
+                  {/* Both of these persist through the CRM — "call booked" is the
+                      number this product exists to produce, and it used to live
+                      in React state only. */}
+                  <button onClick={() => updateStage("Contacted")} disabled={busy}>Mark Sent</button>
+                  <button onClick={() => updateStage("Call Booked")} disabled={busy}>Mark Call Booked</button>
+                </div>
+              </>
+            )}
           </section>
 
           <section className="card" id="add-lead">

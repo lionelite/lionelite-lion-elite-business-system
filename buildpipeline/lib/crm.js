@@ -204,6 +204,118 @@ const STAGE_LABELS = {
   do_not_contact: "Do Not Contact"
 };
 
+/**
+ * UI label -> CRM status. The inverse of STAGE_LABELS, derived from it rather
+ * than written out again: two hand-maintained maps drift, and the failure mode
+ * is a stage that appears to save and then reverts on reload.
+ */
+const CRM_STATUSES = Object.fromEntries(
+  Object.entries(STAGE_LABELS).map(([status, label]) => [label, status])
+);
+
+export function toCrmStatus(stage) {
+  if (!stage) return null;
+  // An unrecognised label is refused rather than defaulted to "new". Defaulting
+  // would silently reset a prospect's stage, which is worse than not saving.
+  return CRM_STATUSES[stage] || (STAGE_LABELS[stage] ? stage : null);
+}
+
+/**
+ * Persist a change to one prospect.
+ *
+ * This existed nowhere, which is why the UI's stage dropdown and its scoring
+ * button only ever changed React state — a prospect moved to "Call Booked"
+ * reverted on the next reload, and a score computed against the campaign ICP
+ * was never written back to the record. A booked call the system forgets is not
+ * a booked call.
+ *
+ * `do_not_contact` is deliberately not settable to false here. Suppression is
+ * one-way in the CRM (`app/replies.py`), and a UI toggle that appeared to undo
+ * it would misrepresent what the record does.
+ */
+export async function updateProspectInCRM(id, changes = {}, config = CRM_CONFIG, fetchImpl = fetch) {
+  const readiness = crmReadiness(config);
+  if (!readiness.ready) {
+    return { ok: false, mode: "pending", missing: readiness.missing };
+  }
+
+  const payload = {};
+  const status = toCrmStatus(changes.stage);
+  if (changes.stage && !status) {
+    return { ok: false, mode: "invalid", message: `Unknown stage: ${changes.stage}` };
+  }
+  if (status) payload.status = status;
+  if (typeof changes.score === "number") payload.score = changes.score;
+  if (typeof changes.notes === "string") payload.notes = changes.notes;
+  if (changes.doNotContact === true) payload.do_not_contact = true;
+
+  if (!Object.keys(payload).length) {
+    return { ok: false, mode: "invalid", message: "Nothing to update." };
+  }
+
+  const params = new URLSearchParams({ organization_id: String(config.organizationId) });
+  const response = await fetchImpl(
+    `${config.apiBase.replace(/\/$/, "")}/leads/${encodeURIComponent(id)}?${params}`,
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json", "x-lei-admin-key": config.apiKey },
+      body: JSON.stringify(payload),
+      cache: "no-store"
+    }
+  );
+
+  const text = await response.text();
+  if (!response.ok) throw new Error(`CRM update failed (${response.status}): ${text.slice(0, 300)}`);
+  return { ok: true, mode: "live", prospect: fromCrmLead(text ? JSON.parse(text) : {}) };
+}
+
+/**
+ * Record an inbound reply against a prospect.
+ *
+ * The CRM classifies it and applies the consequence — suppression on an
+ * opt-out, written to the lead. That decision is not made here on purpose: a
+ * second classifier in the browser is a second answer to "did this person ask
+ * us to stop", and the one that governs sending has to be the one next to the
+ * data.
+ */
+export async function recordReplyInCRM(id, text, config = CRM_CONFIG, fetchImpl = fetch) {
+  const readiness = crmReadiness(config);
+  if (!readiness.ready) return { ok: false, mode: "pending", missing: readiness.missing };
+
+  const params = new URLSearchParams({ organization_id: String(config.organizationId) });
+  const response = await fetchImpl(
+    `${config.apiBase.replace(/\/$/, "")}/sdr/leads/${encodeURIComponent(id)}/replies?${params}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-lei-admin-key": config.apiKey },
+      body: JSON.stringify({ text }),
+      cache: "no-store"
+    }
+  );
+
+  const body = await response.text();
+  if (!response.ok) throw new Error(`Reply not recorded (${response.status}): ${body.slice(0, 300)}`);
+  return { ok: true, mode: "live", result: body ? JSON.parse(body) : null };
+}
+
+/** Pre-contact brief: fit explanation, last reply, and the next action. */
+export async function fetchBriefFromCRM(id, config = CRM_CONFIG, fetchImpl = fetch) {
+  const readiness = crmReadiness(config);
+  if (!readiness.ready) return { ok: false, mode: "pending", missing: readiness.missing };
+
+  const params = new URLSearchParams({ organization_id: String(config.organizationId) });
+  if (process.env.CRM_CAMPAIGN_ID) params.set("campaign_id", process.env.CRM_CAMPAIGN_ID);
+
+  const response = await fetchImpl(
+    `${config.apiBase.replace(/\/$/, "")}/sdr/leads/${encodeURIComponent(id)}/brief?${params}`,
+    { headers: { "x-lei-admin-key": config.apiKey }, cache: "no-store" }
+  );
+
+  const body = await response.text();
+  if (!response.ok) throw new Error(`Brief failed (${response.status}): ${body.slice(0, 300)}`);
+  return { ok: true, mode: "live", brief: body ? JSON.parse(body) : null };
+}
+
 export function fromCrmLead(lead = {}) {
   return {
     id: lead.id,

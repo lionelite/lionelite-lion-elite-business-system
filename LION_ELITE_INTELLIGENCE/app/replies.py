@@ -201,6 +201,8 @@ def lead_brief(
         "public_email": lead.public_email,
         "public_phone": lead.public_phone,
         "owner_name": lead.owner_name,
+        # Carried into the summary so permission is stated ahead of fit.
+        "do_not_contact": bool(lead.do_not_contact),
     }
 
     qualification: dict | None = None

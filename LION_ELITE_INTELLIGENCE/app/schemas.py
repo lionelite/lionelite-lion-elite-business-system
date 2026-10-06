@@ -19,8 +19,20 @@ class LeadCreate(BaseModel):
 
 
 class LeadUpdate(BaseModel):
+    # `extra="forbid"` because the alternative is what actually happened: the
+    # UI sent `{"stage": "Call Booked", "score": 70}`, `score` was not a field
+    # here, Pydantic dropped it, and PATCH answered 200. A half-applied update
+    # reported as success is worse than a rejected one, because nothing
+    # downstream can tell the difference.
+    model_config = ConfigDict(extra="forbid")
+
     status: str | None = None
     notes: str | None = None
+    # Scored against the campaign ICP by the caller. Writable because the score
+    # is a judgement about fit, not a derived column — and a score computed and
+    # then discarded means the qualified list cannot be filtered on it.
+    score: int | None = Field(default=None, ge=0, le=100)
+    # One-way. Settable to True, never back to False — see `update_lead`.
     do_not_contact: bool | None = None
 
 
