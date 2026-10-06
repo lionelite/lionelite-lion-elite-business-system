@@ -31,6 +31,11 @@ services:
         value: "5"
       - key: AUTONOMOUS_SENDING_ENABLED
         value: "false"
+      # Gates POST /ingest/leads and the campaign write endpoints. Absent, those
+      # return 503 rather than accepting unauthenticated writes — fail closed,
+      # but invisible from the blueprint unless the variable is declared here.
+      - key: LEI_ADMIN_API_KEY
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
@@ -71,6 +76,43 @@ services:
         value: "5"
       - key: IN_PROCESS_AGENT_RUNTIME
         value: "true"
+
+  # BuildPipeline — the SDR front end. Previously in no blueprint at all, which
+  # is why buildpipeline.online has never pointed anywhere: there was nothing
+  # deployed to point it at.
+  #
+  # Separate service rather than folded into lion-elite-intelligence because
+  # they are different runtimes (Node/Next vs Python/Docker) and should scale
+  # and fail independently — an SDR UI being down must not take the CRM with it.
+  - type: web
+    name: buildpipeline
+    runtime: node
+    plan: starter
+    rootDir: buildpipeline
+    buildCommand: npm ci && npm run build
+    # Render assigns the port; next start defaults to 3000 and would bind the
+    # wrong one, so it is passed explicitly.
+    startCommand: npx next start -p $PORT
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Base URL of the CRM. Deliberately not derived with fromService: Render
+      # supplies host and port separately and the blueprint cannot concatenate
+      # them into a URL, so a wrong guess here would fail at runtime rather
+      # than at deploy. Set it to the internal address of
+      # lion-elite-intelligence.
+      - key: CRM_API_BASE
+        sync: false
+      # Must equal LEI_ADMIN_API_KEY on lion-elite-intelligence. Secret, so it
+      # is set in the dashboard and never committed.
+      - key: CRM_ADMIN_KEY
+        sync: false
+      # Numeric id of the workspace this deployment writes to. The CRM refuses
+      # a batch naming an unknown organization rather than writing rows that
+      # belong to nobody.
+      - key: CRM_ORGANIZATION_ID
+        sync: false
 
 databases:
   - name: lion-elite-intelligence-db
