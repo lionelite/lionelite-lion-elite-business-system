@@ -11,33 +11,47 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 // because CRM_ADMIN_KEY must stay server-side — a client component talking to
 // the CRM would ship the key in the bundle.
 
-const stages = ["New","Qualified","Outreach Ready","Contacted","Replied","Follow-Up","Call Booked","Proposal","Won","Lost"];
+// "Do Not Contact" is a terminal stage, not a score. qualify() routes an
+// ICP-excluded prospect here rather than back to New, and it was missing from
+// this list — so the stage select had no matching option and React would warn
+// on a value it could not render.
+const stages = ["New","Qualified","Outreach Ready","Contacted","Replied","Follow-Up","Call Booked","Proposal","Won","Lost","Do Not Contact"];
 
-function scoreLead(lead) {
-  const hay = `${lead.company} ${lead.services} ${lead.city}`.toLowerCase();
-  let score = 45;
-  if (/clinic|medical|wellness|hormone|med spa|weight|trt|regenerative/.test(hay)) score += 25;
-  if (/weight|hormone|trt|wellness|regenerative/.test(hay)) score += 15;
-  if (/fl|florida|miami|boca|fort lauderdale/.test(hay)) score += 8;
-  if (lead.email) score += 5;
-  return Math.min(score, 100);
-}
+// Scoring moved server-side to /api/score, which evaluates against the
+// campaign's editable ICP. The function that was here started every prospect at
+// a 45-point baseline and added from there, so almost anything cleared the bar
+// — and it was a third opinion, disagreeing with both the CRM's legacy scorer
+// and the campaign criteria. Three scorers meant three answers for one
+// prospect, and the browser's was the one nobody could audit or tune.
 
+// Outreach copy for a Research-Use-Only supplier.
+//
+// The previous draft offered "expanding patient offerings", "properly
+// documented clinical products" and "treatment offering". That is human-use
+// framing — it implies the material is for administration to patients, which is
+// exactly the claim an RUO supplier must never make, and it would have gone out
+// under the Lion Elite name. The replacement sells what is actually being sold:
+// documented, batch-tested research material, for research use.
+//
+// Deliberately makes no claim about efficacy, treatment or patients, and names
+// no compound. A draft is a starting point for a human, so it is written to be
+// safe to send unedited rather than relying on someone catching it.
 function outreachFor(lead) {
-  const angle = /hormone|trt/i.test(lead.services)
-    ? "expanding patient offerings and simplifying access to properly documented clinical products"
+  const angle = /hormone|trt|regenerative|longevity/i.test(lead.services)
+    ? "research-grade peptides with batch-specific third-party testing"
     : /weight/i.test(lead.services)
-      ? "supporting a stronger weight-management offering with reliable clinical fulfillment"
-      : "helping clinics expand their treatment offering without adding operational friction";
-  return `Subject: Quick idea for ${lead.company}
+      ? "reliably documented research-grade supply"
+      : "research-grade supply with verifiable documentation";
 
-Hi ${lead.contact || "there"},
+  return `Subject: Research-grade supply documentation for ${lead.company}
 
-I came across ${lead.company} and noticed your focus on ${lead.services || "patient wellness"}. We work with clinics on ${angle}.
+Hi ${lead.contact || `${lead.company} team`},
 
-I’d like to show you the process, pricing structure, and how we can support your team without creating extra admin work.
+I'm reaching out from Lion Elite Clinical. We supply ${angle} for laboratory research purposes only, with a certificate of analysis for every batch and clear research-use-only labelling on each item.
 
-Would a quick 10-minute walkthrough this week be worth it?
+If ${lead.company} sources research compounds, we'd like to be considered as a supplier. What distinguishes our catalogue is verifiable documentation and consistent fulfilment.
+
+Would you be open to a short call to review the catalogue and the batch testing documentation?
 
 — Lion Elite Clinical`;
 }
@@ -130,12 +144,44 @@ export default function Home() {
     setSelected(prev => ({ ...prev, stage }));
   }
 
-  function qualify() {
-    if (!selected) return;
-    const score = scoreLead(selected);
-    const stage = score >= 75 ? "Qualified" : "New";
-    setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, score, stage } : l));
-    setSelected(prev => ({ ...prev, score, stage }));
+  // Scores through the campaign rather than locally, and surfaces the reasons.
+  // A bare number gives an operator nothing to act on; "category 'trt clinic'
+  // +35, no public_phone +0" tells them what is missing.
+  async function qualify() {
+    if (!selected || busy) return;
+    setBusy(true);
+    try {
+      const response = await fetch("/api/score", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          company_name: selected.company, category: selected.services,
+          state: selected.state, city: selected.city,
+          email: selected.email, phone: selected.phone,
+          contact_name: selected.contact, website: selected.website
+        })
+      });
+      const body = await response.json();
+
+      if (body.mode === "pending") {
+        setConnection({ state: "pending", detail: `Scoring needs ${(body.missing || []).join(", ")}` });
+        return;
+      }
+      if (!body.ok) {
+        setConnection({ state: "error", detail: body.error || "Scoring failed" });
+        return;
+      }
+
+      // An excluded prospect is not a low score — it is one this campaign must
+      // not contact, so it goes to Do Not Contact rather than back to New.
+      const stage = body.excluded ? "Do Not Contact" : body.qualified ? "Qualified" : "New";
+      setLeads(prev => prev.map(l => l.id === selected.id ? { ...l, score: body.score, stage } : l));
+      setSelected(prev => ({ ...prev, score: body.score, stage, reasons: body.reasons }));
+    } catch (error) {
+      setConnection({ state: "error", detail: error.message });
+    } finally {
+      setBusy(false);
+    }
   }
 
   function generate() {
