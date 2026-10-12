@@ -1,7 +1,15 @@
 # Lion Elite Business Credit & Fundability Plan
 
 ## Objective
-Build a stronger business credit profile by establishing legitimate reporting tradelines, creating payment history, and increasing future fundability.
+Build a stronger business credit profile by establishing legitimate reporting tradelines, creating verifiable payment history, and increasing future fundability.
+
+## Underwriting Target
+Build toward a file that includes:
+- Multiple vendor / trade accounts
+- At least **1 true revolving business credit account**
+- At least **1 fleet / fuel account**
+- Existing utility / telecom history where eligible
+- Multi-bureau reporting across D&B, Equifax Business, and Experian Business
 
 ## Current Tradeline Structure
 
@@ -10,12 +18,14 @@ Build a stronger business credit profile by establishing legitimate reporting tr
    - Use for legitimate business supplies and packaging
 
 2. **Amazon Business / Corporate Card**
-   - Business purchasing / revolving credit target
+   - Candidate for the required revolving business account
    - Use for normal operating expenses
+   - Confirm the exact product reports as revolving business credit before relying on it for underwriting
 
 3. **Sam's Club Business Card**
-   - Business retail / revolving credit target
+   - Second revolving candidate / business retail account
    - Use for legitimate business purchases
+   - Confirm the exact product and bureau reporting before counting it
 
 4. **Fleet / Corpay Gas Card**
    - Fleet / fuel tradeline target
@@ -30,41 +40,102 @@ Build a stronger business credit profile by establishing legitimate reporting tr
    - Confirm whether the specific account reports payment history before counting it as a tradeline
 
 7. **eCredable Business Lift**
-   - Use to identify and report eligible existing business payment history
-   - Priority: capture at least **4 months of legitimate, verifiable payment history** where supported
-   - Review existing phone, internet, utility, software, shipping, and vendor accounts for eligibility
+   - Use to report eligible existing business payment history
+   - Priority: capture at least **4 months of legitimate, verifiable history**
+   - eCredable may support up to 24 months of eligible past payment history
+   - Subscription itself can report to D&B, Equifax, and Experian
+   - Business credit cards and qualifying vendor invoices can be reported to D&B
+   - Eligible business utilities can be reported to Equifax
 
 8. **Final Tradeline**
-   - Still to be selected
-   - Selection criteria:
-     - Reports to a major commercial credit bureau
-     - Adds useful bureau coverage
-     - Fits real Lion Elite operating expenses
-     - Avoid unnecessary annual fees or artificial credit-building products
+   - Still to be selected after bureau-gap review
+   - Favor an account that improves bureau coverage and fits normal Lion Elite operating expenses
 
-## Execution Strategy
+## eCredable Existing-History Targets
 
-1. Start with eCredable and identify existing accounts that can be verified and reported with prior payment history.
-2. Confirm which current accounts report to Dun & Bradstreet, Experian Business, Equifax Business, or other relevant commercial bureaus.
-3. Open only the remaining tradelines needed to improve coverage and depth.
-4. Keep all applications consistent:
-   - Exact legal business name
-   - EIN
-   - Business address
-   - Business phone
-   - Business email/domain
-   - Business bank information
-5. Make legitimate business purchases.
-6. Pay invoices early and maintain perfect payment history.
-7. Track when each tradeline first appears on each commercial credit file.
-8. After the starter profile is established, move toward stronger revolving, fleet, store, and bank credit rather than continuously adding low-value Net 30 accounts.
+Prioritize accounts already being paid by Lion Elite:
+
+- **Electricity**
+- **Gas utility**
+- **Business phone / mobile**
+- **Business internet**
+- **Other eligible utilities or services**
+- **Existing vendor invoices**
+- **Existing business credit cards**
+
+### Important eligibility note
+Utilities must be legitimate business accounts and may need to be titled in the business name. eCredable's current FAQ specifically states that business gas, water, and power tied to a commercial building can be reported to Equifax. Other eligible business accounts may also qualify depending on the plan and verification.
+
+## Execution Order
+
+1. **Set up / use eCredable Business Lift first**
+   - Link eligible payment sources
+   - Identify all existing Lion Elite bills with at least 4 months of clean payment history
+   - Capture as much legitimate prior history as eCredable verifies
+
+2. **Establish the revolving account**
+   - First choice: Amazon Business / Corporate Card if the exact account reports as revolving business credit
+   - Backup / second revolving relationship: Sam's Club Business Card
+   - Goal: have at least one account reporting a credit line with recurring utilization and on-time monthly payments
+
+3. **Build vendor depth**
+   - Uline
+   - UPS
+   - FedEx
+   - Final selected vendor / supplier account
+
+4. **Add fleet depth**
+   - Fleet / Corpay gas card
+
+5. **Verify bureau coverage**
+   - D&B
+   - Equifax Business
+   - Experian Business
+
+6. **Only then add additional accounts**
+   - Do not add low-value Net 30 accounts merely to increase account count
+   - Add accounts only where they improve age, depth, mix, limits, or bureau coverage
+
+## Application Consistency
+
+Use the exact same:
+- Legal business name
+- EIN
+- Business address
+- Business phone
+- Business email/domain
+- Business bank information
+
+## Payment Strategy
+
+- Make real business purchases
+- Keep revolving utilization controlled
+- Pay every account on time or early
+- Never manufacture payment history
+- Track first-report date and bureau for each account
 
 ## Guardrails
 
-- Do not use synthetic, rented, or fake tradelines.
-- Do not claim payment history that cannot be verified.
-- Do not open accounts only to inflate account count if they do not improve fundability.
-- Focus on legitimate operating relationships and multi-bureau reporting.
+- No synthetic, rented, or fake tradelines
+- No unverifiable payment-history claims
+- No unnecessary annual-fee accounts solely to inflate tradeline count
+- Prioritize real operating relationships and accounts that underwriters can verify
 
-## Next Step
-Verify the reporting status of each current target account and choose the final eighth tradeline based on the bureau coverage still missing.
+## Immediate Action Checklist
+
+- [ ] eCredable Business Lift active
+- [ ] Electricity reviewed for eligibility
+- [ ] Gas utility reviewed for eligibility
+- [ ] Business phone reviewed for eligibility
+- [ ] Business internet reviewed for eligibility
+- [ ] Existing vendor invoices reviewed
+- [ ] Amazon revolving product verified
+- [ ] Sam's Club revolving product verified
+- [ ] Uline opened / reporting
+- [ ] Fleet account opened / reporting
+- [ ] UPS reporting status verified
+- [ ] FedEx reporting status verified
+- [ ] Final eighth tradeline selected after bureau-gap review
+
+## Goal
+Create a legitimate, diversified commercial credit profile with aged payment history, vendor depth, fleet credit, and at least one revolving business account before moving into higher-limit business cards, lines of credit, and bank funding.
