@@ -2,8 +2,14 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from .sdr import legacy_classification
+
 EASTERN = ZoneInfo("America/New_York")
 
+# Kept as the record of what this module used to match on its own. The live
+# vocabulary is `sdr.OPT_OUT_PHRASES` / `sdr.POSITIVE_PHRASES`; these are
+# retained only because external callers import them, and every term in them is
+# covered there.
 OPT_OUT_TERMS = {
     "remove",
     "unsubscribe",
@@ -35,12 +41,19 @@ def inside_outreach_window(now: datetime | None = None) -> bool:
 
 
 def classify_reply(text: str) -> str:
-    normalized = " ".join((text or "").lower().split())
-    if any(term in normalized for term in OPT_OUT_TERMS):
-        return "opt_out"
-    if any(term in normalized for term in INTEREST_TERMS):
-        return "interested"
-    return "neutral"
+    """Three-value reply classification, delegated to `sdr.classify_reply`.
+
+    This was a second implementation of reply classification with its own word
+    lists. Two classifiers deciding whether someone opted out is one classifier
+    too many: whichever one a given caller happened to import decided whether a
+    person kept being emailed. `sdr` is the single implementation now, and this
+    is the adapter for callers that still want the old string.
+
+    Prefer `sdr.classify_reply` in new code — it returns `stop_sequence`
+    explicitly, which is the field that actually governs sending, and this
+    three-value answer cannot express "stop, but this is not an opt-out".
+    """
+    return legacy_classification(text)
 
 
 def daily_send_limit() -> int:

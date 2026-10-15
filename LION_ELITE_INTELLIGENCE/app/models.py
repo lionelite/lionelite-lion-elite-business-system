@@ -8,6 +8,16 @@ class Lead(Base):
     __tablename__ = "leads"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    # Tenancy. Nullable because every lead in the database predates this column;
+    # migrations.backfill_organization_id assigns existing rows to the first
+    # organization rather than guessing per row. New writes always set it.
+    organization_id: Mapped[int | None] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    # Provenance, so a record that arrived from BuildPipeline can be identified
+    # and a bad import reversed without inferring it from timestamps.
+    source_system: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    external_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     company_name: Mapped[str] = mapped_column(String(255), index=True)
     owner_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     category: Mapped[str] = mapped_column(String(100), index=True)
@@ -37,6 +47,11 @@ class Opportunity(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     lead_id: Mapped[int] = mapped_column(ForeignKey("leads.id", ondelete="CASCADE"), unique=True, index=True)
+    # Denormalised from the lead so pipeline queries can filter by tenant without
+    # a join, and so an opportunity cannot outlive knowledge of who owns it.
+    organization_id: Mapped[int | None] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True, index=True
+    )
     stage: Mapped[str] = mapped_column(String(50), default="new", index=True)
     assigned_rep: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     partnership_type: Mapped[str | None] = mapped_column(String(100), nullable=True)

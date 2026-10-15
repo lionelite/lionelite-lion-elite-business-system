@@ -1,12 +1,13 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from .database import Base, get_db
 from .models import Lead
+from .tenancy import OrganizationScope, lead_in_scope, resolve_organization_id, scoped
 
 
 class LeadActivity(Base):
@@ -22,7 +23,7 @@ class LeadActivity(Base):
 
 
 class ActivityCreate(BaseModel):
-    activity_type: str = Field(pattern="^(call|email|text|meeting|note)$")
+    activity_type: str = Field(pattern="^(call|email|text|meeting|note|reply)$")
     outcome: str | None = None
     notes: str | None = None
     next_follow_up_at: datetime | None = None
@@ -45,10 +46,13 @@ router = APIRouter(prefix="/activities", tags=["activities"])
 
 
 @router.post("/leads/{lead_id}", response_model=ActivityRead, status_code=201)
-def create_activity(lead_id: int, payload: ActivityCreate, db: Session = Depends(get_db)) -> LeadActivity:
-    lead = db.get(Lead, lead_id)
-    if not lead:
-        raise HTTPException(status_code=404, detail="Lead not found")
+def create_activity(
+    lead_id: int,
+    payload: ActivityCreate,
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> LeadActivity:
+    lead = lead_in_scope(db, lead_id, organization_id)
 
     activity = LeadActivity(
         lead_id=lead_id,
@@ -72,10 +76,12 @@ def list_lead_activities(
     lead_id: int,
     db: Session = Depends(get_db),
     limit: int = Query(default=100, ge=1, le=500),
+    organization_id: int | None = Depends(OrganizationScope),
 ) -> list[LeadActivity]:
-    lead = db.get(Lead, lead_id)
-    if not lead:
-        raise HTTPException(status_code=404, detail="Lead not found")
+    # Scoped: an activity note carries call outcomes and whatever a rep typed
+    # about the account, so reading another tenant's timeline is as much of a
+    # leak as reading their lead list.
+    lead = lead_in_scope(db, lead_id, organization_id)
 
     stmt = (
         select(LeadActivity)
@@ -91,19 +97,24 @@ def follow_up_queue(
     db: Session = Depends(get_db),
     due_before: datetime | None = None,
     limit: int = Query(default=100, ge=1, le=500),
+    organization_id: int | None = Depends(OrganizationScope),
 ) -> list[dict]:
+    # This endpoint returns each row's phone number and email address. Unscoped,
+    # one request walked out with every tenant's contact list — the same leak as
+    # the CSV export, in a less obvious shape because it looks like a work queue
+    # rather than an export.
     cutoff = due_before or datetime.utcnow()
-    stmt = (
+    stmt = scoped(
         select(LeadActivity, Lead)
         .join(Lead, Lead.id == LeadActivity.lead_id)
         .where(
             LeadActivity.next_follow_up_at.is_not(None),
             LeadActivity.next_follow_up_at <= cutoff,
             Lead.do_not_contact.is_(False),
-        )
-        .order_by(LeadActivity.next_follow_up_at.asc())
-        .limit(limit)
-    )
+        ),
+        Lead,
+        resolve_organization_id(db, organization_id),
+    ).order_by(LeadActivity.next_follow_up_at.asc()).limit(limit)
 
     rows = db.execute(stmt).all()
     return [

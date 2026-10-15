@@ -15,18 +15,35 @@ from .activities import router as activities_router
 from .agent_control import router as agent_control_router
 from .database import Base, engine, get_db
 from .delivery import router as delivery_router
+from .ingest import router as ingest_router
 from .integrations import router as integrations_router
+from .migrations import backfill_organization_id, run_migrations
 from .models import Lead
 from .pipeline import router as pipeline_router
 from .sales import router as sales_router
 from .schemas import LeadCreate, LeadRead, LeadUpdate
 from .scoring import calculate_score
+from .tenancy import OrganizationScope, lead_in_scope, resolve_organization_id, scoped
 from .saas import router as saas_router
 from .workspace import router as workspace_router
 from .billing import router as billing_router
+from .campaigns import router as campaigns_router
+from .replies import router as sdr_router
 
 Base.metadata.create_all(bind=engine)
+
+# create_all builds missing tables but never alters existing ones, so a new
+# column on an existing model would be declared by the ORM and absent from the
+# database — the app boots and then fails on the first read. Additive
+# migrations close that gap and are safe to re-run on every deploy.
+_MIGRATIONS = run_migrations(engine)
+_BACKFILL = backfill_organization_id(engine)
+
 logger = logging.getLogger("lion-elite-free-runtime")
+if _MIGRATIONS["columns"] or _MIGRATIONS["indexes"]:
+    logger.info("schema migrations applied: %s", _MIGRATIONS)
+if any(_BACKFILL.values()):
+    logger.info("tenancy backfill: %s", _BACKFILL)
 
 
 @asynccontextmanager
@@ -70,11 +87,14 @@ app.include_router(sales_router)
 app.include_router(activities_router)
 app.include_router(agent_control_router)
 app.include_router(delivery_router)
+app.include_router(ingest_router)
 app.include_router(integrations_router)
 app.include_router(pipeline_router)
 app.include_router(saas_router)
 app.include_router(workspace_router)
 app.include_router(billing_router)
+app.include_router(campaigns_router)
+app.include_router(sdr_router)
 
 DASHBOARD_PATH = Path(__file__).with_name("dashboard.html")
 
@@ -146,20 +166,36 @@ def bulk_create_leads(payload: list[LeadCreate], db: Session = Depends(get_db)) 
 
 
 @app.get("/stats")
-def stats(db: Session = Depends(get_db)) -> dict:
-    total = db.scalar(select(func.count()).select_from(Lead)) or 0
-    qualified = db.scalar(select(func.count()).select_from(Lead).where(Lead.score >= 80)) or 0
-    new_leads = db.scalar(select(func.count()).select_from(Lead).where(Lead.status == "new")) or 0
-    dnc = db.scalar(select(func.count()).select_from(Lead).where(Lead.do_not_contact.is_(True))) or 0
+def stats(
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> dict:
+    # Aggregates are the easiest place for a tenant leak to hide: a wrong count
+    # looks like a number rather than like another customer's data.
+    org = resolve_organization_id(db, organization_id)
+
+    def count(*conditions):
+        stmt = scoped(select(func.count()).select_from(Lead), Lead, org)
+        for condition in conditions:
+            stmt = stmt.where(condition)
+        return db.scalar(stmt) or 0
+
+    total = count()
+    qualified = count(Lead.score >= 80)
+    new_leads = count(Lead.status == "new")
+    dnc = count(Lead.do_not_contact.is_(True))
 
     status_rows = db.execute(
-        select(Lead.status, func.count(Lead.id)).group_by(Lead.status).order_by(func.count(Lead.id).desc())
+        scoped(select(Lead.status, func.count(Lead.id)), Lead, org)
+        .group_by(Lead.status).order_by(func.count(Lead.id).desc())
     ).all()
     category_rows = db.execute(
-        select(Lead.category, func.count(Lead.id)).group_by(Lead.category).order_by(func.count(Lead.id).desc()).limit(10)
+        scoped(select(Lead.category, func.count(Lead.id)), Lead, org)
+        .group_by(Lead.category).order_by(func.count(Lead.id).desc()).limit(10)
     ).all()
 
     return {
+        "organization_id": org,
         "total_leads": total,
         "qualified_leads": qualified,
         "new_leads": new_leads,
@@ -172,6 +208,7 @@ def stats(db: Session = Depends(get_db)) -> dict:
 @app.get("/leads", response_model=list[LeadRead])
 def list_leads(
     db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
     status: str | None = None,
     category: str | None = None,
     state: str | None = None,
@@ -180,7 +217,8 @@ def list_leads(
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
 ) -> list[Lead]:
-    stmt = select(Lead).where(Lead.score >= min_score)
+    stmt = scoped(select(Lead), Lead, resolve_organization_id(db, organization_id))
+    stmt = stmt.where(Lead.score >= min_score)
 
     if status:
         stmt = stmt.where(Lead.status == status)
@@ -204,20 +242,39 @@ def list_leads(
 
 
 @app.get("/leads/{lead_id}", response_model=LeadRead)
-def get_lead(lead_id: int, db: Session = Depends(get_db)) -> Lead:
-    lead = db.get(Lead, lead_id)
-    if not lead:
-        raise HTTPException(status_code=404, detail="Lead not found")
-    return lead
+def get_lead(
+    lead_id: int,
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> Lead:
+    return lead_in_scope(db, lead_id, organization_id)
 
 
 @app.patch("/leads/{lead_id}", response_model=LeadRead)
-def update_lead(lead_id: int, payload: LeadUpdate, db: Session = Depends(get_db)) -> Lead:
-    lead = db.get(Lead, lead_id)
-    if not lead:
-        raise HTTPException(status_code=404, detail="Lead not found")
+def update_lead(
+    lead_id: int,
+    payload: LeadUpdate,
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> Lead:
+    lead = lead_in_scope(db, lead_id, organization_id)
+    changes = payload.model_dump(exclude_unset=True)
 
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    # Suppression is one-way: settable, never clearable. `replies.py` writes it
+    # when someone opts out, and a PATCH that could set it back to false would
+    # make that withdrawal of consent reversible by a mis-click or a stale
+    # client payload echoing the whole record back. Reinstating contact needs
+    # fresh consent, which is not a field update.
+    if changes.get("do_not_contact") is False and lead.do_not_contact:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "do_not_contact cannot be cleared. This contact opted out; "
+                "reinstating contact requires fresh consent, not a field update."
+            ),
+        )
+
+    for field, value in changes.items():
         setattr(lead, field, value)
 
     db.commit()
@@ -226,10 +283,27 @@ def update_lead(lead_id: int, payload: LeadUpdate, db: Session = Depends(get_db)
 
 
 @app.delete("/leads/{lead_id}", status_code=204)
-def delete_lead(lead_id: int, db: Session = Depends(get_db)) -> Response:
-    lead = db.get(Lead, lead_id)
-    if not lead:
-        raise HTTPException(status_code=404, detail="Lead not found")
+def delete_lead(
+    lead_id: int,
+    db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
+) -> Response:
+    # Was unscoped: it fetched by id alone, so one tenant could delete another
+    # tenant's lead — and its activity history with it, via the cascade. The
+    # read leaks were recoverable; this one destroyed the record.
+    lead = lead_in_scope(db, lead_id, organization_id)
+
+    # A suppressed contact is not deleted. The row is the evidence that they
+    # opted out; delete it and the next import of the same list has no record
+    # of the request, re-creates the lead, and starts contacting them again.
+    if lead.do_not_contact:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "This contact opted out. The record is the suppression entry — "
+                "deleting it would let a later import contact them again."
+            ),
+        )
 
     db.delete(lead)
     db.commit()
@@ -239,10 +313,14 @@ def delete_lead(lead_id: int, db: Session = Depends(get_db)) -> Response:
 @app.get("/exports/leads.csv")
 def export_leads_csv(
     db: Session = Depends(get_db),
+    organization_id: int | None = Depends(OrganizationScope),
     min_score: int = Query(default=0, ge=0, le=100),
     status: str | None = None,
 ) -> Response:
-    stmt = select(Lead).where(Lead.score >= min_score, Lead.do_not_contact.is_(False))
+    # A bulk export is the worst place to miss the tenant filter: one request
+    # walks out with every customer's contact list in a single file.
+    stmt = scoped(select(Lead), Lead, resolve_organization_id(db, organization_id))
+    stmt = stmt.where(Lead.score >= min_score, Lead.do_not_contact.is_(False))
     if status:
         stmt = stmt.where(Lead.status == status)
 

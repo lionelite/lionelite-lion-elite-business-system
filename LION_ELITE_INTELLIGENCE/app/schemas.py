@@ -19,8 +19,20 @@ class LeadCreate(BaseModel):
 
 
 class LeadUpdate(BaseModel):
+    # `extra="forbid"` because the alternative is what actually happened: the
+    # UI sent `{"stage": "Call Booked", "score": 70}`, `score` was not a field
+    # here, Pydantic dropped it, and PATCH answered 200. A half-applied update
+    # reported as success is worse than a rejected one, because nothing
+    # downstream can tell the difference.
+    model_config = ConfigDict(extra="forbid")
+
     status: str | None = None
     notes: str | None = None
+    # Scored against the campaign ICP by the caller. Writable because the score
+    # is a judgement about fit, not a derived column — and a score computed and
+    # then discarded means the qualified list cannot be filtered on it.
+    score: int | None = Field(default=None, ge=0, le=100)
+    # One-way. Settable to True, never back to False — see `update_lead`.
     do_not_contact: bool | None = None
 
 
@@ -33,6 +45,13 @@ class LeadRead(LeadCreate):
     do_not_contact: bool
     created_at: datetime
     updated_at: datetime
+    # Tenancy and provenance. Stored on the model but previously absent from
+    # this response, so a caller could not tell which workspace a lead belonged
+    # to, nor whether it was sourced by BuildPipeline or entered by a human —
+    # which made every synced lead read back as "manual" in the UI.
+    organization_id: int | None = None
+    source_system: str | None = None
+    external_id: str | None = None
 
 
 class OpportunityCreate(BaseModel):
