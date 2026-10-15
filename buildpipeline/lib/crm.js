@@ -335,3 +335,58 @@ export function fromCrmLead(lead = {}) {
     source: lead.source_system || "manual"
   };
 }
+
+
+// --- optional outbound event mirror -------------------------------------
+//
+// Ported from main's version of this file, which was developed in parallel and
+// pushed typed events (`lead.upsert`, `activity.create`, `meeting.upsert`,
+// `deal.upsert`) to an external Base44 CRM.
+//
+// It is kept, but demoted. The LION_ELITE_INTELLIGENCE CRM above is the system
+// of record: it is the one with tenant scoping, the suppression list and the
+// opt-out enforcement, and two systems both claiming to own a contact's
+// do-not-contact state is how an unsubscribe gets honoured in one place and
+// ignored in the other. So this mirrors events outward; it never reads back,
+// and nothing here decides whether a contact may be messaged.
+//
+// Gated on `CRM_SYNC_URL` alone — not on `CRM_API_BASE`, which main's version
+// also accepted. That overlap is what made the two integrations collide:
+// setting `CRM_API_BASE` for the system of record would have silently started
+// POSTing events at it in a schema it does not speak.
+export const CRM_EVENT_CONFIG = {
+  workspace: process.env.CRM_WORKSPACE || "lion-elite-clinical",
+  syncUrl: process.env.CRM_SYNC_URL || "",
+  apiKey: process.env.CRM_SYNC_KEY || ""
+};
+
+export async function pushCRMEvent(eventType, payload, config = CRM_EVENT_CONFIG, fetchImpl = fetch) {
+  if (!config.syncUrl) {
+    // Not an error. No mirror configured is the normal state, and the system of
+    // record above has already stored the change.
+    return { ok: false, mode: "pending", message: "No CRM_SYNC_URL configured; event mirror is off." };
+  }
+
+  const headers = { "content-type": "application/json" };
+  if (config.apiKey) headers.authorization = `Bearer ${config.apiKey}`;
+
+  const res = await fetchImpl(config.syncUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      event_type: eventType,
+      workspace: config.workspace,
+      source: "buildpipeline",
+      occurred_at: new Date().toISOString(),
+      payload
+    }),
+    cache: "no-store"
+  });
+
+  const body = await res.text();
+  if (!res.ok) throw new Error(`CRM event mirror failed (${res.status}): ${body.slice(0, 300)}`);
+
+  let data = body;
+  try { data = body ? JSON.parse(body) : null; } catch { /* a non-JSON 200 is still a success */ }
+  return { ok: true, mode: "mirrored", data };
+}
