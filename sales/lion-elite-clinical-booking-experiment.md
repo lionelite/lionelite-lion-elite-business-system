@@ -1,62 +1,84 @@
-# Lion Elite Clinical — Next Cohort Booking Experiment
+# Lion Elite Clinical — Qualified Booking Experiment
 
-## Objective
+## Current evidence through October 19, 2026
 
-Improve **qualified meetings booked** while preserving Lion Elite Clinical's relationship-first positioning.
+| Outreach | Delivered | Positive replies | Qualified booking | Outcome |
+|---|---:|---:|---:|---|
+| October 8 service-specific peptide-program cohort | At least 17 | 1 | 1 | Level T accepted the calendar invitation for October 13. The 20-minute slot was disrupted and a 45-minute reschedule is pending. |
+| October 13 deeply personalized partnership cohort | 19 | 0 | 0 | No reply. Only 4/19 addresses appeared role-specific; 15/19 were general inboxes despite named-person subject lines. |
+| October 15 volume-cost cohort | 75 net delivered (77 sent; 2 failed) | 0 | 0 | No reply. Multiple variables changed and the message led with price/savings claims, so it does not identify a test winner. |
 
-## Fixed cohort
+There is no verified completed meeting, no-show by the prospect, opportunity, close, or revenue outcome yet. The October 13 Level T calendar event was confirmed, but the conversation was not completed as intended. A rescheduling email was sent October 19.
 
-- 40 net-delivered U.S. clinics that already advertise a peptide program plus at least one adjacent medical service (TRT, hormone care, GLP-1/medical weight management, longevity, or functional medicine).
-- Randomize 20 clinics to Control and 20 to Variant after removing invalid addresses.
-- Prefer a verified owner, medical director, practice administrator, or operations leader. A general inbox is acceptable only when no role-specific contact is verified.
-- Keep subject, remainder of body, sender, offer, CTA, follow-up copy, cadence, weekday, and send window identical across both arms.
+The previously planned opening-line test was not executed as a controlled split. Do not promote either opening as a winner.
 
-## The only variable: opening line
+## Decision
 
-**Control**
+Return to the service-specific, diagnostic structure that produced the only qualified booking. Do not lead with price, a catalog, generic “partnership opportunity” language, or unsupported superlatives.
 
-> You already combine [verified service 1], [verified service 2], and peptide therapy, so I wanted to reach out about the operational side of that service line.
+The October 15 message used “up to $65,000,” “high-quality,” and “U.S.-based” claims. These must remain outside future automated outreach until the supporting order calculation, quality evidence, and sourcing documentation are linked in the prospect or campaign record and approved for outreach use.
 
-**Variant — relationship-first**
+## Next cohort: change only the CTA
 
-> Because [Clinic] already combines [verified service 1], [verified service 2], and peptide therapy, I’m curious whether a more responsive long-term partner could help your team protect the patient experience while strengthening the business behind the program.
+### Objective
 
-Do not infer services. Personalization fields must come from the clinic's public website or another saved source.
+Determine whether offering two concrete meeting times improves qualified meetings booked versus a calendar-link-only close, while preserving the relationship-first message.
 
-## Shared message after the opening
+### Fixed cohort
 
-> I’m Alexander with Lion Elite Clinical. We’re building a small group of clinic partners and refining support around peptide-program operations, documentation review, sourcing conversations, and clinic economics.
+- 40 net-delivered U.S. clinics that publicly advertise peptide therapy plus at least one adjacent medical service: TRT, hormone care, GLP-1/medical weight management, longevity, or functional medicine.
+- Randomize 20 clinics to Control and 20 to Variant after address verification.
+- Prefer a verified owner, medical director, practice administrator, or operations leader. Do not put a person’s name in the subject or opening when sending to a general inbox unless the website explicitly routes that inbox to the person.
+- Keep the subject, opening, body, sender, offer, follow-up, weekday, and send window identical.
+
+### Fixed subject
+
+> Quick question about [Clinic]’s peptide program
+
+### Fixed opening and body
+
+> Hi [first name/team],
 >
-> Rather than send a generic price sheet, I’d first like to understand what matters most to your team right now: a cleaner process, a dependable backup option, broader availability, or better economics?
+> I noticed [Clinic] already combines peptide therapy with [verified adjacent service]. That usually means the relationship behind the program has to support more than product availability—it has to protect continuity, responsiveness, and the patient experience.
 >
-> If there may be a fit, I can share the relevant details for your team to review. Would a quick 10-minute conversation next week make sense?
+> At Lion Elite Clinical, we want to understand the standards behind your current program first, combine our operational perspective with your clinical expertise, and determine whether we could strengthen the business behind the care without disrupting what already works.
+>
+> Where does your current relationship create the most friction, if anywhere: responsiveness, continuity, availability, documentation, or economics?
 
-Use only services and capabilities that Lion Elite Clinical can document. Do not include quality, savings, sourcing, regulatory, therapeutic, or affordability claims unless the supporting evidence is linked in the prospect record and approved for outreach use.
+Every service reference must have a saved public source. Do not insert quality, pricing, savings, sourcing, regulatory, or therapeutic claims without linked and approved evidence.
+
+### The only variable: CTA format
+
+**Control — link only**
+
+> If you’re open to comparing notes:
+> https://calendly.com/a-ringfield-trustetc/lion-elite-growth-strategy-call
+
+**Variant — two proposed times plus the same link**
+
+> Would a 15-minute conversation next week be useful? I can do Tuesday at 3:00 PM Central or Wednesday at 3:00 PM Central. Reply with either time, or choose what works best here:
+> https://calendly.com/a-ringfield-trustetc/lion-elite-growth-strategy-call
+
+Use dates matching the actual send week before launch. Everything other than these CTA lines must remain identical.
 
 ## Primary metric and qualification
 
-Primary: **qualified meetings booked within seven days / net-delivered prospects**.
+Primary: **qualified calendar-confirmed meetings within seven days / net-delivered prospects**.
 
-A booked meeting counts as qualified only when the clinic:
+A meeting counts as qualified only when the clinic:
 
 1. currently operates a relevant medical wellness program;
-2. identifies a current operational, sourcing, documentation, availability, or economics need; and
+2. identifies a current operational, continuity, documentation, availability, responsiveness, or economics need; and
 3. includes or can route Lion Elite Clinical to a purchasing or program decision-maker.
 
-Secondary metrics: positive replies, qualification replies, booking attempts, calendar-confirmed meetings, completed meetings, no-shows, opportunities, and closes.
+Secondary: positive replies, qualification replies, booking attempts, calendar confirmations, completed meetings, prospect no-shows, opportunities, closes, and revenue.
 
-An agreed time in email is a **booking attempt**, not a confirmed meeting, until a calendar invitation exists.
+An agreed time is a booking attempt until a calendar invitation is created and accepted. A disrupted meeting is not a completed meeting and should not be counted as a prospect no-show when the disruption was not caused by the prospect.
 
-## Winner rule for the following cycle
+## Winner rule
 
-Promote the Variant only if it produces more qualified meetings booked with no increase in negative replies. If the arms tie on qualified meetings, use qualification replies as the tiebreaker. If still tied, keep the Control and repeat with a larger cohort.
+Promote the Variant into the following cycle only if it produces more qualified calendar-confirmed meetings with no increase in negative replies or prospect no-shows. If qualified meetings tie, use completed qualified meetings, then qualification replies, as tiebreakers. If still tied, retain the Control and repeat with a larger cohort.
 
-## Required tracking fields
+## Required tracking
 
-Prospect segment; services verified; role contacted; contact type (named or general); subject; opening arm; personalization source; partnership framing; offer framing; CTA; reply type; qualification signals; booking attempt; calendar-confirmed meeting; attended; no-show; opportunity; close; revenue if available; message IDs; evidence links.
-
-## Copy guardrails
-
-Reject language that sounds like a commodity pitch: “best price,” “highest quality,” “limited-time,” “exclusive deal,” “bulk discount,” “price sheet,” or unqualified savings claims.
-
-Preferred positioning: Lion Elite Clinical listens first, combines its expertise with the clinic's, supports patient relationships, and seeks to become a responsive long-term partner.
+Prospect segment; verified services; role contacted; named/general contact; subject; opening; personalization source; empathy/partnership framing; offer framing; CTA arm; reply type; qualification signals; booking attempt; calendar confirmation; attendance; disruption owner; no-show; opportunity; close; revenue; message IDs; evidence links.
