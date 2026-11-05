@@ -183,3 +183,102 @@ Reconstructed from on-screen captions; not a verbatim transcript.
 9. **Personal consequence:** “What would it mean for you if reaching your goal took another 20 years?” Let them explain. “What would that cost you personally?”
 10. **Clarify and probe:** “What do you mean by that?” “How is that affecting you now?” Follow their actual answer. In the video, the prospect raises concerns about his marriage and arguments over money; only explore those topics if the prospect brings them up.
 11. **Commitment question:** “So, coming back to what you said you want: whose approach makes more sense to learn from—the person who took decades, or the person who achieved the result faster?” Pause. “Then does it make sense for us to move forward?”
+
+
+## Sales 2 — Price-to-value objection handling
+
+Added November 5, 2026. Source: supplied “Sales 2.mp4” (approximately 104 seconds). The sequence below follows the visible instructional labels and captions. Dialogue is adapted for these offers, not a verbatim audio transcript.
+
+### Video sequence and placement
+
+Use after presenting the actual scope and price, when the prospect says “That’s a lot” or “That’s too expensive.” For age/credibility objections, use the earlier framework instead.
+
+| Step | Video label | Purpose |
+|---|---|---|
+| 1 | Pattern interrupt & clarify | Find out what “expensive” means. |
+| 2 | Shift cost based thinking to value based thinking | Compare the price with what is being purchased. |
+| 3 | Get buy in | Confirm that value depends on the offer, not the number alone. |
+| 4 | Identity frame | Connect the decision to the prospect’s stated priorities. |
+| 5 | Belief in solution? | Check whether they believe the proposed approach fits. |
+| 6 | Reframe the $15k | Revisit the quoted price in context; $15,000 belongs to the video example. |
+| 7 | Isolate value driver | Ask which specific component matters most. |
+| 8 | Self persuasion | Let the prospect explain why that component matters. |
+| 9 | Probe | Explore their answer rather than supplying it. |
+| 10 | Identity alignment question | Relate the decision to their goal and decision criteria. |
+| 11 | Commitment question | Ask for a clear, appropriate next step. |
+
+The clip uses a Ferrari price analogy to show that a number alone does not establish value. In customer conversations, prefer a relevant comparison with the actual offer. The price, income figures, and outcomes in the clip are not evidence for any Lion Elite or BuildPipeline claim.
+
+### BuildPipeline — “That’s too expensive”
+
+1. **Clarify:** “A lot compared with what you expected, or more than you can comfortably invest right now?”
+2. **Cost to value:** “The number matters. So does what you’re getting for it. Let’s compare [actual total investment] with the work, the evidence, and the business problem we’re addressing.”
+3. **Buy-in:** “Would you agree that we need to evaluate both the cost and whether the approach is worth it for your business?”
+4. **Identity:** “You said your goal is to move from [current $5K/$7K/$8K monthly revenue] toward [chosen $35K/$50K monthly target]. You want a decision that supports that goal.”
+5. **Belief:** “Based on what we’ve covered, do you believe [specific proposed process] addresses [confirmed bottleneck]? What are you still unsure about?”
+6. **Price reframe:** “Then let’s assess [actual quoted fee plus separate costs] against the scope and realistic economics, rather than treating the fee alone as the whole decision. What would have to be true for it to make sense?”
+7. **Value driver:** “Which part would make the biggest difference for you: reaching qualified prospects, getting appointments, improving follow-up, or improving sales conversion?”
+8. **Self persuasion:** “Why that part? What would it change in the way your business operates?”
+9. **Probe:** “How would you measure that improvement? What evidence would you need before relying on it?”
+10. **Alignment:** “Given your goal and cash position, does this plan meet the criteria you want to use for the decision—or is there something we still need to resolve?”
+11. **Commitment:** “If the scope, budget, and remaining questions are settled, are you ready to move forward with [agreed next step]?”
+
+**Economics check:** Use contribution after variable delivery costs, not revenue alone, when discussing break-even. Illustrative only: a $5,000 total acquisition investment and $1,000 contribution per incremental client require five incremental clients to cover that investment, before other overhead. Use a matching time period, include recurring costs, and do not imply those clients are guaranteed. A $35K–$50K revenue goal is not a return forecast.
+
+### Lion Elite Clinical — “Your quote is too high”
+
+1. **Clarify:** “Is the concern the total budget, or a difference from another supplier’s quote?”
+2. **Cost to value:** “Let’s compare equivalent specifications, quantities, documentation, delivery terms, and total landed cost.”
+3. **Buy-in:** “Would that be a fairer comparison than unit price by itself?”
+4. **Identity:** “You’re looking for a purchasing decision that meets the practice’s requirements and makes financial sense.”
+5. **Belief:** “Does the documented offer meet those requirements? Which points still need verification?”
+6. **Price reframe:** “Once those are verified, we can evaluate [actual quote] against the complete purchasing requirements. We shouldn’t assume a higher price means higher quality.”
+7. **Value driver:** “Which verified part of the offer matters most to your team?”
+8. **Self persuasion:** “Why is that important for your purchasing process?”
+9. **Probe:** “Can you quantify the time, cost, or operational impact using your records?”
+10. **Alignment:** “Does this comparison support your purchasing priorities and approved budget?”
+11. **Commitment:** “Would you like to take the comparison to your approver, or resolve the remaining documentation questions first?”
+
+**Operating note:** Do not invent savings, quality advantages, testing outcomes, supply guarantees, or regulatory status. Requirements must be met before discussing an order.
+
+### Lion Elite Beauty — “Coaching costs too much”
+
+1. **Clarify:** “Is it more than you planned to spend, or are you unsure the support is worth the price?”
+2. **Cost to value:** “Let’s look at the actual coaching, contact frequency, planning, and accountability included.”
+3. **Buy-in:** “Would you agree the question is whether that support meets your needs at a price that works for you?”
+4. **Identity:** “You said [their goal] matters to you, and [their consistency challenge] has been difficult.”
+5. **Belief:** “Do you feel this coaching approach addresses that challenge? What gives you hesitation?”
+6. **Price reframe:** “The investment is [verified price and term] for [verified scope]. Which part feels out of proportion to the value?”
+7. **Value driver:** “Which part of the support would be most useful to you?”
+8. **Self persuasion:** “Why would that make a difference compared with what you’ve tried?”
+9. **Probe:** “What would progress look like in your weekly routine?”
+10. **Alignment:** “Does this match the support you want and what you can comfortably commit in time and money?”
+11. **Commitment:** “Would you like to start with [available coaching option], or is there a question we should settle first?”
+
+**Operating note:** Do not tie self-worth or commitment to willingness to buy. Do not promise physical, medical, or relationship outcomes.
+
+### Lion Elite Wellness — “I found it cheaper elsewhere”
+
+1. **Clarify:** “Are you comparing the same research product, quantity, specifications, and shipping terms?”
+2. **Cost to value:** “Let’s compare the available documentation and total cost against your project’s requirements.”
+3. **Buy-in:** “Would you agree that meeting those requirements is part of evaluating price?”
+4. **Identity:** “You’re trying to make a research purchase that fits the project and its budget.”
+5. **Belief:** “Does the information we’ve provided answer your requirements? What remains unclear?”
+6. **Price reframe:** “For [actual total price], the order includes [verified contents and terms]. Let’s identify any meaningful difference from the alternative.”
+7. **Value driver:** “Which requirement matters most in your selection?”
+8. **Self persuasion:** “Why is that requirement important for this project?”
+9. **Probe:** “What documentation would let you verify it?”
+10. **Alignment:** “Does this option fit your specifications, timeline, and approved budget?”
+11. **Commitment:** “If those checks are complete, would you like the written quote for [quantity]?”
+
+**Operating note:** Keep research-product value discussions about verified research specifications and purchasing terms. Do not use human health benefits, dosing, or treatment outcomes to justify price.
+
+### Branching and outcome recording
+
+- If the issue is **affordability**, acknowledge it. Discuss only real, available options or an agreed later review; do not pressure the prospect into debt.
+- If the issue is **belief or missing proof**, return to the unanswered question and provide relevant evidence. Do not advance to commitment while the concern is unresolved.
+- If the issue is **comparison**, compare equivalent scope and total costs; acknowledge when the alternative better fits.
+- If the issue is **value**, ask the prospect to identify the useful component and explain its importance in their own words.
+- If the prospect declines, respect the decision.
+- Record the exact objection, category, value driver, evidence requested/provided, unresolved concern, and next action with owner/date.
+- This addition updates the sales playbook. It does not activate campaigns, change prices, deploy software, or initiate outreach.
