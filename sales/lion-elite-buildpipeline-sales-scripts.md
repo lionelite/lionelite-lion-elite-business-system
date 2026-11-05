@@ -129,7 +129,7 @@ For immature cohorts, label rates provisional; use N/A for a zero denominator. D
 |---|---|---|
 | Unified call workflow and script routing | Documented | Rehearse a full call and each relevant objection |
 | Brand-specific discovery and Sales 1–3 | Documented below | Select the correct branch |
-| Final offer scope, actual pricing and terms | Placeholders remain | Offer owner supplies current approved commercial details |
+| Final offer scope, actual pricing and terms | BuildPipeline price confirmed at $10,000; target customer $7K–$8K/month, goal $35K–$50K/month. Scope and terms remain open | Define deliverables, delivery term, payment structure and separate costs; confirm other brands separately |
 | Evidence supporting offer claims | Required; not supplied as a verified evidence pack here | Attach relevant verifiable evidence |
 | Booking, proposal and payment destinations | Not verified in this formatting update | Confirm the correct working destinations |
 | CRM fields, tasks and stage mapping | Specified above; not deployed by this update | Map into live system and test one sample opportunity |
@@ -148,9 +148,29 @@ Ask one question at a time. Use the prospect’s actual answers in follow-up que
 
 ## BuildPipeline — Marketing offer
 
+### Confirmed offer parameters
+
+Confirmed by Alex on November 5, 2026. These parameters supersede the earlier $5K–$8K target-client range for BuildPipeline.
+
+| Parameter | Confirmed value |
+|---|---|
+| Offer price | $10,000 |
+| Target customer | Business owners currently generating approximately $7,000–$8,000 in monthly revenue |
+| Growth objective | Build toward $35,000–$50,000 in monthly revenue |
+| Delivery term and target timeline | Not yet defined |
+| Payment schedule / recurring versus one-time structure | Not yet defined; do not describe $10,000 as monthly or payable upfront without confirmation |
+| Deliverables, exclusions, advertising/software costs | Must be specified before a final proposal |
+| Evidence and guarantee | No verified outcome evidence or guarantee established by this offer definition |
+
 ### Positioning
 
-“We work with business owners currently bringing in around $5,000, $7,000, or $8,000 a month who want to build toward $35,000–$50,000 months. We start by identifying what’s holding back growth, then map the acquisition and follow-up process around your offer, capacity, and numbers.”
+“BuildPipeline is a $10,000 growth offer for business owners generating around $7,000–$8,000 a month who want to build toward $35,000–$50,000 months. We start by identifying what’s holding back growth, then map the acquisition, follow-up, and sales process around your offer, capacity, and numbers.”
+
+### Price presentation
+
+“The offer is $10,000. Before you decide, let's walk through exactly what is included, the delivery timeline, your responsibilities, the payment terms, and any separate costs.”
+
+Use the confirmed scope when available. Do not treat the revenue goal as a guaranteed result or assume a deadline. Qualification must assess whether the business can fund the offer and delivery costs without relying on the target revenue materializing.
 
 Revenue figures describe the target client and their goal, not a guaranteed outcome. Describe only services and platform capabilities available in the actual offer.
 
@@ -170,7 +190,7 @@ Revenue figures describe the target client and their goal, not a guaranteed outc
 
 ### Explain the offer
 
-“Based on what you’ve told me, the main gap is [confirmed problem]. The proposed work is [specific deliverables], with [responsibilities], over [timeframe], for [actual price and any separate advertising/software costs].
+“Based on what you’ve told me, the main gap is [confirmed problem]. The proposed work is [specific deliverables], with [responsibilities], over [timeframe], for $10,000 [specify payment terms and whether advertising/software costs are included or separate].
 
 “We’ll track qualified conversations, booked and held appointments, sales, collected revenue, and acquisition costs so we can see where the process needs improvement.”
 
@@ -387,7 +407,7 @@ Use this version after presenting the actual offer and price. This is the select
 
 **6. Reframe the investment**
 
-“So is [actual price] too much—or do you need to feel more certain that this can help you get there?”
+“So is $10,000 too much—or do you need to feel more certain that this can help you get there?”
 
 *Resolve any uncertainty before continuing.*
 
@@ -427,7 +447,7 @@ Use this version after presenting the actual offer and price. This is the select
 
 “Should we get you started?”
 
-**Economics check:** Use contribution after variable delivery costs, not revenue alone, when discussing break-even. Illustrative only: a $5,000 total acquisition investment and $1,000 contribution per incremental client require five incremental clients to cover that investment, before other overhead. Use a matching time period, include recurring costs, and do not imply those clients are guaranteed. A $35K–$50K revenue goal is not a return forecast.
+**Economics check:** Use contribution after variable delivery costs, not revenue alone, when discussing break-even. Illustrative only: the $10,000 offer fee divided by $1,000 contribution per incremental client requires ten incremental clients to cover the fee alone, before any additional advertising, software or other overhead. Use a matching time period, include recurring costs, and do not imply those clients are guaranteed. A $35K–$50K revenue goal is not a return forecast.
 
 ### Branching and outcome recording
 
