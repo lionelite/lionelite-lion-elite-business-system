@@ -2,6 +2,144 @@
 
 Scripts prepared November 4, 2026; added to the central sales playbooks November 5, 2026. This document contains sales guidance; it does not deploy application changes.
 
+## Start here — Unified sales operating workflow
+
+Organized November 5, 2026. Use this section during calls; the detailed scripts below remain the source for exact wording. This workflow is ready for rep preparation and role-play. Offer-specific commercial details must be completed before quoting; CRM deployment and live sending are not established by this document.
+
+### 1. Choose the offer and prepare
+
+| Offer | Open the script | Qualification focus | Appropriate next step |
+|---|---|---|---|
+| BuildPipeline | [Marketing offer](#buildpipeline--marketing-offer) | Acquisition bottleneck, revenue, contribution, capacity, decision authority, timeline | Written scope and commercial review |
+| Clinical | [Business buyer](#lion-elite-clinical--business-buyer-script) | Purchasing authority, specifications, volumes, documentation, supplier requirements | Requirements review and documented quote |
+| Beauty | [Coaching](#lion-elite-beauty--coaching-script) | Goal, consistency barriers, support needs, schedule, budget | Review suitable coaching scope and enrollment terms |
+| Wellness | [Research customer](#lion-elite-wellness--research-customer-script) | Research specifications, documentation, quantity, timing | Documentation review and quote |
+
+Before the call, open the correct offer, the prospect's private record, relevant evidence, and the next-step booking or proposal process. Keep actual prospect information out of this public repository.
+
+### 2. Run the conversation in order
+
+| Stage | Rep action / suggested transition | Required output |
+|---|---|---|
+| Open | “Let's look at where you are, what you want to change, and whether we can help. Does that work?” | Agreed agenda and available time |
+| Discover | Ask the selected offer's discovery questions, one at a time | Current situation, problem, desired outcome, timeline |
+| Qualify | “Who else is involved in this decision?” “What would you need to see to move forward?” | Decision process, criteria, budget fit and capacity |
+| Confirm the gap | “You're at [current situation], you want [goal], and [bottleneck] is getting in the way. Have I understood that correctly?” | Prospect-confirmed diagnosis |
+| Present | “To address [gap], the proposed work is [deliverables], over [term], for [total price], with [responsibilities].” | Clear scope, evidence, costs, limitations |
+| Resolve | Use only the branch matching the actual objection below | Answered concern or explicit outstanding question |
+| Agree next step | “Based on what we've covered, does [specific next step] make sense?” | Action, owner, date/time and timezone |
+| Record and hand off | Complete the private call record and assign the next task | No active opportunity without an owner and due date |
+
+If there is no fit, record why and close respectfully. Do not run all three objection scripts on every prospect.
+
+### 3. Route objections to the right script
+
+| What the prospect says | Use | Return point |
+|---|---|---|
+| “You're too young / why should I trust you?” | [Sales 1 credibility reference](#reference--video-matched-age-objection), or the selected brand's credibility adaptation | Relevant evidence and decision criteria |
+| “That's too expensive” during a BuildPipeline offer | [Sales 2](#buildpipeline--video-style-price-objection) | Resolved value, proof or affordability concern; then next step |
+| “Why all these questions?” during BuildPipeline discovery | [Sales 3](#sales-3--resistance-to-discovery-questions) | Last unanswered discovery question |
+| “I need to think” | “Of course. What specifically would you like to think through—the fit, the investment, or something else?” | Resolve the named concern or agree a review date |
+| “I need to speak with my partner” | “What will they need to evaluate? Would a joint review be useful?” | Written recap and an agreed joint review |
+| “Send me information” | “Which question should the information help you answer?” | Relevant evidence and an agreed next step |
+| Clear decline | Acknowledge the decision and stop pursuing the sale | Closed-lost reason or explicitly agreed future contact |
+
+Sales 2 and Sales 3 remain single BuildPipeline scripts; they are not duplicated across the other brands. The three short additional responses above are operational additions, not claims about the uploaded videos.
+
+### 4. Use one private call record
+
+Copy this template into the actual CRM or private notes. These are proposed fields, not a deployed schema.
+
+- Opportunity ID / brand / source / assigned rep:
+- Contact / company / decision participants:
+- Stage / stage entered date:
+- Current situation and baseline:
+- Desired outcome / target date:
+- Confirmed bottleneck and impact in their words:
+- Decision criteria / budget fit / delivery capacity:
+- Scope and price version presented:
+- Evidence shown / evidence requested:
+- Exact objection / category / script used:
+- Unresolved question / responsible person:
+- Next action / owner / due date / timezone:
+- Follow-up channel agreed / contact restrictions:
+- Result / loss reason:
+- Agreement status / payment status / collected amount:
+- Delivery owner / kickoff date:
+
+### 5. Manage stages with clear exit criteria
+
+| Stage | Move forward only when |
+|---|---|
+| New | Owner assigned and source recorded |
+| Discovery scheduled | Time, timezone and participants confirmed |
+| Discovery completed | Situation, goal and problem recorded |
+| Qualified | Fit, decision process, timing and commercial feasibility assessed |
+| Proposal sent | Specific scope, total costs, terms and review date provided |
+| Decision pending | Remaining concern and dated next action recorded |
+| Closed won | Written acceptance/order requirements are satisfied; payment tracked separately |
+| Onboarding | Delivery owner accepts handoff and kickoff/fulfillment is confirmed |
+| Closed lost | Decline or lack of fit recorded with reason |
+| Nurture | Future review is appropriate and a date/channel is recorded |
+
+A verbal “sounds good” is not collected revenue. No-response alone is not a win. Stage names here are a workflow specification until mapped into the live CRM.
+
+### 6. Follow up and hand off consistently
+
+Drafts below are for manual use after filling the placeholders and confirming the relevant facts. This update sends no messages.
+
+**After the call**
+
+“Hi [name], we identified [confirmed problem] and your goal of [goal]. The proposed next step is [action]. I'll provide [evidence/deliverable] by [date], and we'll reconnect on [date/time/timezone]. The remaining question is [question]. Does that accurately reflect our conversation?”
+
+**Before an agreed decision review**
+
+“Hi [name], ahead of our review on [date], here's [requested evidence]. Does it resolve your question about [concern], or is there anything else we should address together?”
+
+**Missed appointment**
+
+“Hi [name], we missed each other today. Would you like to reschedule? If priorities have changed, let me know and I'll update my notes.”
+
+**After acceptance**
+
+“Hi [name], confirming the agreed scope: [scope], [total price and payment terms], and [timeline]. Your delivery contact is [owner]. The next step is [onboarding action] on [date].”
+
+Agree the follow-up timing on the call. If no timing was agreed, do not imply an appointment exists. Stop follow-up after a clear decline or opt-out. Keep payment credentials and client details in approved private systems.
+
+**Delivery handoff:** pass the accepted scope/version, commitments, success measures, constraints, payment status, delivery owner and kickoff date. The delivery owner confirms receipt; sales retains responsibility until that happens.
+
+### 7. Review performance and improve the scripts
+
+During the team's weekly review, use one consistent reporting period and cohort. Show counts beside rates and separate brands and sources.
+
+| Measure | Definition |
+|---|---|
+| Show rate | Held meetings / scheduled meetings due in the period |
+| Qualification rate | Qualified opportunities / completed discovery calls |
+| Proposal win rate | Won opportunities / proposals in the same tracked cohort |
+| Collection | Actual collected money, with refunds tracked separately |
+| Follow-up completion | Tasks completed by deadline / tasks due |
+| Objection resolution | Conversations progressing after the objection / conversations with that objection |
+
+For immature cohorts, label rates provisional; use N/A for a zero denominator. Do not blend booked revenue with cash collected. Review losses and unanswered questions, select one script improvement, record its version and compare subsequent outcomes without claiming causation from small samples.
+
+### 8. Readiness checklist
+
+| Item | Current status established by this playbook | Required action before use |
+|---|---|---|
+| Unified call workflow and script routing | Documented | Rehearse a full call and each relevant objection |
+| Brand-specific discovery and Sales 1–3 | Documented below | Select the correct branch |
+| Final offer scope, actual pricing and terms | Placeholders remain | Offer owner supplies current approved commercial details |
+| Evidence supporting offer claims | Required; not supplied as a verified evidence pack here | Attach relevant verifiable evidence |
+| Booking, proposal and payment destinations | Not verified in this formatting update | Confirm the correct working destinations |
+| CRM fields, tasks and stage mapping | Specified above; not deployed by this update | Map into live system and test one sample opportunity |
+| Lead assignment and delivery handoff | Process defined; individual owners not assigned | Assign accountable people |
+| Live messaging and automation | Not activated by this update | Verify routing, contact permissions, stop conditions and delivery before launch |
+
+**First operational run:** complete the offer details, select one qualified prospect, prepare their private record, run the relevant script, record the actual result, and complete the agreed next action. Verify that the handoff and reporting work before scaling volume.
+
+---
+
 ## Master sales flow
 
 Open → discover current situation → establish desired outcome → diagnose the gap → explain the offer → present evidence and price → handle objections → agree on the next step.
