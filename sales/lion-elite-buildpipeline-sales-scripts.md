@@ -129,7 +129,7 @@ For immature cohorts, label rates provisional; use N/A for a zero denominator. D
 |---|---|---|
 | Unified call workflow and script routing | Documented | Rehearse a full call and each relevant objection |
 | Brand-specific discovery and Sales 1–3 | Documented below | Select the correct branch |
-| Final offer scope, actual pricing and terms | BuildPipeline price confirmed at $10,000; target customer $7K–$8K/month, goal $35K–$50K/month. Core service workstreams confirmed; delivery specifics and terms remain open | Define duration, cadence, channels, volumes, payment structure and separate costs; confirm other brands separately |
+| Final offer scope, actual pricing and terms | BuildPipeline price confirmed at $10,000; target customer $7K–$8K/month, goal $35K–$50K/month. Core workstreams, 90-day term, $5K/$2.5K/$2.5K installments and separate outside costs confirmed | Define cadence, channels, volumes, scope limits and exact outside budgets; confirm other brands separately |
 | Evidence supporting offer claims | Required; not supplied as a verified evidence pack here | Attach relevant verifiable evidence |
 | Booking, proposal and payment destinations | Not verified in this formatting update | Confirm the correct working destinations |
 | CRM fields, tasks and stage mapping | Specified above; not deployed by this update | Map into live system and test one sample opportunity |
@@ -157,19 +157,38 @@ Confirmed by Alex on November 5, 2026. These parameters supersede the earlier $5
 | Offer price | $10,000 |
 | Target customer | Business owners currently generating approximately $7,000–$8,000 in monthly revenue |
 | Growth objective | Build toward $35,000–$50,000 in monthly revenue |
-| Delivery term and target timeline | Not yet defined |
-| Payment schedule / recurring versus one-time structure | Not yet defined; do not describe $10,000 as monthly or payable upfront without confirmation |
+| Delivery term and target timeline | 90-day engagement; $35K–$50K monthly revenue remains a growth goal, not a guaranteed 90-day outcome |
+| Payment schedule / recurring versus one-time structure | $10,000 total engagement fee: $5,000 at signing, $2,500 at day 30, $2,500 at day 60. Specify installment dates in the agreement; no automatic renewal |
 | Service model | Hands-on team engagement: business diagnosis, rep coaching, offer improvement, qualified lead and meeting generation, and conversion improvement |
-| Delivery scope | Core workstreams confirmed below; quantities, channels, cadence, exclusions and advertising/software costs remain to be defined |
+| Delivery scope | Core workstreams confirmed below; quantities, channels, cadence and detailed exclusions remain to be defined |
+| Outside costs | Advertising spend and outside software costs are separate from the $10,000 fee; itemize before agreement |
 | Evidence and guarantee | No verified outcome evidence or guarantee established by this offer definition |
 
 ### Positioning
 
 “BuildPipeline is a $10,000 growth offer for business owners generating around $7,000–$8,000 a month who want to build toward $35,000–$50,000 months. Our team comes into your business, identifies what’s working and what’s holding you back, works directly with your sales reps to build confidence and sharpen execution, revitalizes your offer, and works to bring in more qualified leads and meetings so your team can convert more of the right opportunities.”
 
+### 90-day delivery plan and commercial structure
+
+Accepted by Alex on November 5, 2026 following discussion of the delivery recommendation.
+
+| Phase | Focus | Review output |
+|---|---|---|
+| Days 1–30 | Diagnose the business, interview reps, strengthen the offer and establish the sales process | Baseline, prioritized gaps, offer brief and working sales process |
+| Days 31–60 | Coach reps, execute agreed qualified-opportunity generation and improve follow-up | Coaching feedback, opportunity records and funnel review |
+| Days 61–90 | Review results, address weak points and hand over a repeatable process | Updated playbook, performance review and handoff |
+
+These are primary phase priorities, not restrictions on doing useful work earlier. Qualification and capacity checks precede outreach. Review targets against actual baseline and sales cycle.
+
+**Payment:** $5,000 at signing, $2,500 at day 30 and $2,500 at day 60; $10,000 total. Define the engagement start date and exact installment due dates in the written agreement. Advertising spend and outside software costs are separate and must be disclosed. Any support after day 90 requires a separate agreement; it is not included or automatically renewed.
+
+**Client fit:** assess margins, available cash, evidence that customers already buy the offer, rep availability and fulfillment capacity. Do not qualify on monthly revenue alone or assume future growth will fund payments.
+
+**Scope boundaries to finish:** specify coaching session count, rep/team coverage, outreach channels and volume, response availability and client access requirements before signing. No unlimited-service commitment is implied.
+
 ### Delivery workstreams
 
-Core activities confirmed by Alex on November 5, 2026. The outputs below organize those activities into a proposed delivery process; they do not establish a promised volume, service duration or operating cadence.
+Core activities confirmed by Alex on November 5, 2026. The outputs below organize those activities into a proposed delivery process; they do not establish a promised volume or operating cadence. The engagement duration is 90 days as defined above.
 
 | Workstream | Team activity | Concrete output | Success check |
 |---|---|---|---|
@@ -183,7 +202,7 @@ Core activities confirmed by Alex on November 5, 2026. The outputs below organiz
 
 **Qualification definition:** Before generating leads, agree on buyer profile, relevant need, decision authority or access to it, and timing. Record budget fit when known; do not invent it. A booked meeting is not automatically qualified, and a qualified meeting is not a sale.
 
-**Launch details still open:** engagement duration; payment structure; coaching cadence; outreach channels and volume; meeting targets, if any; advertising/software budgets and who pays; staffing and handoff owners. Do not add numerical lead, meeting or revenue guarantees without separately agreed terms and supporting evidence.
+**Launch details still open:** coaching cadence and limits; outreach channels and volume; meeting targets, if any; exact advertising/software budgets and billing arrangements; staffing and handoff owners. The 90-day duration, installment structure and separate outside costs are confirmed above. Do not add numerical lead, meeting or revenue guarantees without separately agreed terms and supporting evidence.
 
 ### Discovery additions for the team engagement
 
@@ -199,13 +218,13 @@ Core activities confirmed by Alex on November 5, 2026. The outputs below organiz
 
 ### Delivery handoff for this offer
 
-Carry the confirmed baseline, priority bottleneck, rep coaching needs, approved offer version, qualification criteria, channel scope, cost responsibilities and delivery owner into onboarding. Set the review cadence and target timeline in the final scope. Use the existing Sales 1–3 branches to coach reps and support relevant conversations; assess results instead of assuming the scripts will improve conversion.
+Carry the confirmed baseline, priority bottleneck, rep coaching needs, approved offer version, qualification criteria, channel scope, cost responsibilities and delivery owner into onboarding. Set the review cadence and exact 90-day start/end dates in the final scope; record the client’s revenue target timeline separately. Use the existing Sales 1–3 branches to coach reps and support relevant conversations; assess results instead of assuming the scripts will improve conversion.
 
 ### Price presentation
 
-“The offer is $10,000. Before you decide, let's walk through exactly what is included, the delivery timeline, your responsibilities, the payment terms, and any separate costs.”
+“The engagement is 90 days for $10,000: $5,000 at signing, $2,500 at day 30 and $2,500 at day 60. Advertising spend and outside software are separate. Let’s walk through the scope, your responsibilities and the full budget before you decide.”
 
-Use the confirmed scope when available. Do not treat the revenue goal as a guaranteed result or assume a deadline. Qualification must assess whether the business can fund the offer and delivery costs without relying on the target revenue materializing.
+Use the confirmed scope when available. Do not treat the revenue goal as a guaranteed result or promise it will be reached within 90 days. Qualification must assess whether the business can fund the offer and delivery costs without relying on the target revenue materializing.
 
 Revenue figures describe the target client and their goal, not a guaranteed outcome. Describe only services and platform capabilities available in the actual offer.
 
@@ -225,7 +244,7 @@ Revenue figures describe the target client and their goal, not a guaranteed outc
 
 ### Explain the offer
 
-“Based on what you’ve told me, the main gap is [confirmed problem]. Our team will assess what’s working and what isn’t, work directly with your reps on confidence and sales execution, strengthen your offer, and run the agreed work to generate qualified leads and meetings. We’ll then review conversion and improve the process. The offer is $10,000, with [confirmed delivery term, responsibilities, payment terms and any separate advertising/software costs].”
+“Based on what you’ve told me, the main gap is [confirmed problem]. Our team will assess what’s working and what isn’t, work directly with your reps on confidence and sales execution, strengthen your offer, and run the agreed work to generate qualified leads and meetings. We’ll then review conversion and improve the process. The offer is $10,000, over 90 days, paid $5,000 at signing and $2,500 at days 30 and 60. Advertising spend and outside software costs are separate. We’ll confirm [specific responsibilities, scope limits and outside budget] in writing.”
 
 “We’ll track qualified conversations, booked and held appointments, sales, collected revenue, and acquisition costs so we can see where the process needs improvement.”
 
