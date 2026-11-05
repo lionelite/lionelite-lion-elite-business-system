@@ -1,0 +1,185 @@
+# Lion Elite & BuildPipeline — Updated Sales Scripts
+
+Scripts prepared November 4, 2026; added to the central sales playbooks November 5, 2026. This document contains sales guidance; it does not deploy application changes.
+
+## Master sales flow
+
+Open → discover current situation → establish desired outcome → diagnose the gap → explain the offer → present evidence and price → handle objections → agree on the next step.
+
+Ask one question at a time. Use the prospect’s actual answers in follow-up questions. The objection sequence follows the supplied video: permission, credibility, identity, buy-in, reinforcement, selection, third-person consequence, tie-down, personal consequence, clarification, commitment.
+
+## BuildPipeline — Marketing offer
+
+### Positioning
+
+“We work with business owners currently bringing in around $5,000, $7,000, or $8,000 a month who want to build toward $35,000–$50,000 months. We start by identifying what’s holding back growth, then map the acquisition and follow-up process around your offer, capacity, and numbers.”
+
+Revenue figures describe the target client and their goal, not a guaranteed outcome. Describe only services and platform capabilities available in the actual offer.
+
+### Discovery
+
+“Where is monthly revenue today, and how consistent has that been?”
+
+“What do you sell, what’s the average sale worth, and how much remains after delivery costs?”
+
+“How many qualified conversations are you getting each month? How many become paying clients?”
+
+“What happens when someone shows interest but doesn’t buy immediately?”
+
+“Is $35,000 or $50,000 the goal—and by when?”
+
+“If demand increased, how many additional clients could you serve well?”
+
+### Explain the offer
+
+“Based on what you’ve told me, the main gap is [confirmed problem]. The proposed work is [specific deliverables], with [responsibilities], over [timeframe], for [actual price and any separate advertising/software costs].
+
+“We’ll track qualified conversations, booked and held appointments, sales, collected revenue, and acquisition costs so we can see where the process needs improvement.”
+
+### Make the target concrete
+
+“At $2,500 per sale, $35,000 means 14 sales a month and $50,000 means 20. At an illustrative 20% close rate, that would require 70–100 qualified sales conversations. We’ll use your actual numbers to assess whether the target and timeline are realistic.”
+
+This example is arithmetic, not a performance forecast.
+
+### Objection handling — credibility, experience, or skepticism
+
+1. **Permission:** “Can I be real with you?”
+2. **Credibility:** “When you evaluate a marketing partner, how much weight do you put on years in business versus evidence that they can solve your specific problem?”
+3. **Identity:** “You’ve said you want to grow beyond [current revenue] and build toward [target]. That’s why we’re discussing what needs to change.”
+4. **Buy-in:** “Would you agree that the process, relevant results, and ability to execute are what we need to examine?”
+5. **Reinforcement:** “Being busy marketing for years doesn’t necessarily mean there’s a repeatable way to acquire profitable clients.”
+6. **Selection:** “Would you rather keep repeating your current approach, or evaluate a measurable process designed around the gap we identified?”
+7. **Third-person consequence:** “What tends to happen when a business keeps losing interested prospects because nobody follows up consistently?”
+8. **Tie-down:** “Is that the pattern you want to continue?”
+9. **Personal consequence:** “If your revenue stayed around [current amount] for another year, what would that mean for you?”
+10. **Clarify:** “When you say [their words], what does that look like in practice?”
+11. **Commitment:** “Based on the scope, evidence, and investment we’ve reviewed, are you ready to move forward with [specific agreed next step]?”
+
+## Lion Elite Clinical — Business buyer script
+
+### Opening
+
+“Hi [name], this is [rep] with Lion Elite Clinical. Who handles supplier evaluation and purchasing for your practice?”
+
+With the decision-maker:
+
+“We’d like to understand your purchasing requirements and see whether there’s a fit on documentation, reliability, and total cost. What would a new supplier have to demonstrate for you to consider them?”
+
+### Discovery and offer
+
+“What are you currently purchasing, in what volume, and how frequently?”
+
+“What matters most in your evaluation?”
+
+“Where is your current arrangement falling short, if anywhere?”
+
+“Who else reviews and approves a new supplier?”
+
+“Based on those requirements, the next step would be a documented comparison covering [verified offering], specifications, applicable sourcing information, pricing, testing requirements, and written terms.”
+
+Use only verified product, supplier, and regulatory information. Do not describe research-use-only products as products for patient treatment or claim 503B status without verification.
+
+### Objection handling — “We already have a supplier” or “Why trust you?”
+
+1. **Permission:** “Can I offer another way to evaluate it?”
+2. **Credibility:** “Would it be useful to judge us against your written requirements and supporting documentation?”
+3. **Identity:** “You’re responsible for protecting the practice while making sound purchasing decisions.”
+4. **Buy-in:** “Would you agree that quality requirements, reliability, and total cost all matter?”
+5. **Reinforcement:** “A longstanding relationship is valuable. A documented comparison gives you a basis for deciding whether your current arrangement remains the best fit.”
+6. **Selection:** “Would you be open to comparing a qualified alternative before deciding whether any change makes sense?”
+7. **Third-person consequence:** “What happens to a practice that never reviews recurring supplier issues or purchasing costs?”
+8. **Tie-down:** “Is that something you want to avoid?”
+9. **Personal consequence:** “How is [the issue they identified] affecting your practice today?”
+10. **Clarify:** “Can you give me a recent example—and what it cost in time or money?”
+11. **Commitment:** “Let’s schedule a requirements review with the people who approve purchasing. What time works?”
+
+## Lion Elite Beauty — Coaching script
+
+### Opening
+
+“What would you most like to change over the next few months, and what have you tried so far?”
+
+### Discovery and offer
+
+“What has been hardest to maintain?”
+
+“What support do you feel is missing?”
+
+“What would meaningful progress look like to you?”
+
+“The coaching option we’re discussing includes [current verified scope], at [current price], with [contact frequency and term]. Based on what you’ve shared, we would focus on [agreed priorities].”
+
+### Objection handling — “I can do this myself” or “Why do I need a coach?”
+
+1. **Permission:** “Can I be direct with you?”
+2. **Credibility:** “Would it make sense to evaluate coaching by the quality of the plan, support, and relevant experience?”
+3. **Identity:** “You’ve said [goal] matters to you, and you want a way to stay consistent.”
+4. **Buy-in:** “Is knowing what to do the challenge, or consistently following through?”
+5. **Reinforcement:** “More information may not solve a problem with consistency. That’s where structure and accountability could help.”
+6. **Selection:** “Would you rather continue with your current approach, or work with support aimed at the obstacle you identified?”
+7. **Third-person consequence:** “What usually happens when someone keeps restarting without addressing what makes them stop?”
+8. **Tie-down:** “Is that a cycle you want to change?”
+9. **Personal consequence:** “If the next six months looked like the last six, how would you feel about that?”
+10. **Clarify:** “What would changing that make possible for you?”
+11. **Commitment:** “Does the coaching plan we reviewed fit the support you need and the investment you’re comfortable making?”
+
+## Lion Elite Wellness — Research customer script
+
+### Opening
+
+“Thanks for your interest in Lion Elite Wellness. Which research product are you evaluating, and what documentation or specifications do you need?”
+
+### Discovery and offer
+
+“What quantity and purchasing timeframe are you considering?”
+
+“What are your requirements for identity, purity, testing documentation, and handling?”
+
+“What questions do you need answered before making a purchasing decision?”
+
+“For [product], we can provide [available verified information], with [current price, availability, and terms].”
+
+Keep research-product conversations within research use. Route topical cosmetic products to their own verified product information. Do not provide dosing, treatment recommendations, or human-use assurances for research products.
+
+### Objection handling — price or supplier credibility
+
+1. **Permission:** “Can I suggest a way to compare the options?”
+2. **Credibility:** “Would you agree that the available documentation and fit with your specifications should guide the evaluation?”
+3. **Identity:** “You’re looking to make a purchasing decision you can justify against your research requirements.”
+4. **Buy-in:** “Besides price, which requirements are essential?”
+5. **Reinforcement:** “The lowest price is useful only if the product meets the requirements you’re purchasing against.”
+6. **Selection:** “Would a side-by-side review of specifications, documentation, quantity, and total cost help?”
+7. **Third-person consequence:** “What happens when a research buyer orders before confirming that the product meets the project’s requirements?”
+8. **Tie-down:** “Is that a risk you want to avoid?”
+9. **Personal consequence:** “What would a mismatch mean for your project’s budget or schedule?”
+10. **Clarify:** “Which requirement still needs clarification?”
+11. **Commitment:** “If the documentation meets your requirements, would you like a quote for [quantity]?”
+
+## Shared execution rules
+
+- Pause after questions; respond to the answer instead of mechanically running every step.
+- Support credibility with relevant, verifiable evidence.
+- Address genuine concerns about price, suitability, or missing evidence directly.
+- Use the prospect’s own stated consequences; do not invent personal fears.
+- Record the objection, underlying concern, evidence provided, response, and agreed next step.
+- Track booked meetings, held meetings, qualified opportunities, proposals, wins, and collected revenue separately.
+- End with a specific next action, owner, and date. Respect a clear decline.
+
+## Reference — Video-matched age objection
+
+Reconstructed from on-screen captions; not a verbatim transcript.
+
+**Objection:** “You’re younger than me. I’ve been doing this longer than you’ve been alive. How can you help me?”
+
+1. **Permission to reframe:** “Can I be real with you?” Pause for their answer.
+2. **Reframe credibility:** “What does it matter how long someone’s been in sales if the results aren’t where they want them to be?”
+3. **Identity frame:** “You seem like someone who wants to grow. You have ambition, and you want to get somewhere—that’s why we’re having this conversation.”
+4. **Get buy-in:** “What matters more: how long somebody’s been in sales, or how successful they’ve actually been?” Let them answer.
+5. **Reinforce the frame:** “Exactly. Someone could spend 40 years doing something without getting the results you want. The number of years alone doesn’t tell you whether their approach is worth following.”
+6. **Reframe mentor selection:** “If the purpose of having a mentor is to learn from their knowledge and replicate their success, whose approach would you rather learn? Someone who took 20 years to reach a certain level, or someone who reached that same level in a much shorter time?”
+7. **Third-person consequence:** “What do you think happens to someone who chooses a mentor purely because they’ve been doing it longer, without looking at the results or how they achieved them?” Pause. “Could they end up taking that same long road?”
+8. **Tie-down:** “Is that what you want?”
+9. **Personal consequence:** “What would it mean for you if reaching your goal took another 20 years?” Let them explain. “What would that cost you personally?”
+10. **Clarify and probe:** “What do you mean by that?” “How is that affecting you now?” Follow their actual answer. In the video, the prospect raises concerns about his marriage and arguments over money; only explore those topics if the prospect brings them up.
+11. **Commitment question:** “So, coming back to what you said you want: whose approach makes more sense to learn from—the person who took decades, or the person who achieved the result faster?” Pause. “Then does it make sense for us to move forward?”
