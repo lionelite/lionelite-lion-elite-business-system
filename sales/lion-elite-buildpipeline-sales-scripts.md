@@ -129,7 +129,7 @@ For immature cohorts, label rates provisional; use N/A for a zero denominator. D
 |---|---|---|
 | Unified call workflow and script routing | Documented | Rehearse a full call and each relevant objection |
 | Brand-specific discovery and Sales 1–3 | Documented below | Select the correct branch |
-| Final offer scope, actual pricing and terms | BuildPipeline price confirmed at $10,000; target customer $7K–$8K/month, goal $35K–$50K/month. Scope and terms remain open | Define deliverables, delivery term, payment structure and separate costs; confirm other brands separately |
+| Final offer scope, actual pricing and terms | BuildPipeline price confirmed at $10,000; target customer $7K–$8K/month, goal $35K–$50K/month. Core service workstreams confirmed; delivery specifics and terms remain open | Define duration, cadence, channels, volumes, payment structure and separate costs; confirm other brands separately |
 | Evidence supporting offer claims | Required; not supplied as a verified evidence pack here | Attach relevant verifiable evidence |
 | Booking, proposal and payment destinations | Not verified in this formatting update | Confirm the correct working destinations |
 | CRM fields, tasks and stage mapping | Specified above; not deployed by this update | Map into live system and test one sample opportunity |
@@ -159,12 +159,47 @@ Confirmed by Alex on November 5, 2026. These parameters supersede the earlier $5
 | Growth objective | Build toward $35,000–$50,000 in monthly revenue |
 | Delivery term and target timeline | Not yet defined |
 | Payment schedule / recurring versus one-time structure | Not yet defined; do not describe $10,000 as monthly or payable upfront without confirmation |
-| Deliverables, exclusions, advertising/software costs | Must be specified before a final proposal |
+| Service model | Hands-on team engagement: business diagnosis, rep coaching, offer improvement, qualified lead and meeting generation, and conversion improvement |
+| Delivery scope | Core workstreams confirmed below; quantities, channels, cadence, exclusions and advertising/software costs remain to be defined |
 | Evidence and guarantee | No verified outcome evidence or guarantee established by this offer definition |
 
 ### Positioning
 
-“BuildPipeline is a $10,000 growth offer for business owners generating around $7,000–$8,000 a month who want to build toward $35,000–$50,000 months. We start by identifying what’s holding back growth, then map the acquisition, follow-up, and sales process around your offer, capacity, and numbers.”
+“BuildPipeline is a $10,000 growth offer for business owners generating around $7,000–$8,000 a month who want to build toward $35,000–$50,000 months. Our team comes into your business, identifies what’s working and what’s holding you back, works directly with your sales reps to build confidence and sharpen execution, revitalizes your offer, and works to bring in more qualified leads and meetings so your team can convert more of the right opportunities.”
+
+### Delivery workstreams
+
+Core activities confirmed by Alex on November 5, 2026. The outputs below organize those activities into a proposed delivery process; they do not establish a promised volume, service duration or operating cadence.
+
+| Workstream | Team activity | Concrete output | Success check |
+|---|---|---|---|
+| Diagnose | Review what is working and failing across the offer, lead sources, follow-up and sales process; speak with owner and reps | Baseline assessment and prioritized improvement plan | Bottlenecks supported by available data and rep feedback |
+| Develop the team | Talk with reps, identify confidence and skill gaps, coach discovery, offer presentation and objection handling | Coaching priorities, role-play feedback and adapted scripts | Rep execution assessed through call review and practice |
+| Revitalize the offer | Refine positioning, audience fit, value explanation and presentation with the client | Updated offer brief and sales presentation | Team can clearly explain buyer fit, scope, value and price |
+| Generate qualified opportunities | Define target buyers and qualification criteria, then execute the agreed lead-generation and meeting-setting work | Qualified lead records and meeting handoffs | Track qualified leads, booked meetings and held meetings separately |
+| Improve conversion | Review outcomes, follow-up and objections; refine the process based on evidence | Conversion scorecard and documented adjustments | Track qualified held-meeting conversion, collected revenue and acquisition costs |
+
+**Responsibilities:** BuildPipeline leads the agreed diagnosis, coaching, offer work and lead/meeting-generation activities. The client supplies appropriate access to business data and reps, confirms offer changes, attends agreed meetings, and handles sales conversations and fulfillment unless the final scope explicitly assigns those responsibilities elsewhere. Closing on the client's behalf is not included by implication.
+
+**Qualification definition:** Before generating leads, agree on buyer profile, relevant need, decision authority or access to it, and timing. Record budget fit when known; do not invent it. A booked meeting is not automatically qualified, and a qualified meeting is not a sale.
+
+**Launch details still open:** engagement duration; payment structure; coaching cadence; outreach channels and volume; meeting targets, if any; advertising/software budgets and who pays; staffing and handoff owners. Do not add numerical lead, meeting or revenue guarantees without separately agreed terms and supporting evidence.
+
+### Discovery additions for the team engagement
+
+“What is already working that you want us to preserve?”
+
+“Where do your reps lose confidence or get stuck during a sales conversation?”
+
+“How are you defining a qualified lead today, and how many booked meetings actually show up?”
+
+“What do prospects misunderstand about the offer?”
+
+“Can your team handle additional qualified meetings and fulfill the extra sales?”
+
+### Delivery handoff for this offer
+
+Carry the confirmed baseline, priority bottleneck, rep coaching needs, approved offer version, qualification criteria, channel scope, cost responsibilities and delivery owner into onboarding. Set the review cadence and target timeline in the final scope. Use the existing Sales 1–3 branches to coach reps and support relevant conversations; assess results instead of assuming the scripts will improve conversion.
 
 ### Price presentation
 
@@ -190,7 +225,7 @@ Revenue figures describe the target client and their goal, not a guaranteed outc
 
 ### Explain the offer
 
-“Based on what you’ve told me, the main gap is [confirmed problem]. The proposed work is [specific deliverables], with [responsibilities], over [timeframe], for $10,000 [specify payment terms and whether advertising/software costs are included or separate].
+“Based on what you’ve told me, the main gap is [confirmed problem]. Our team will assess what’s working and what isn’t, work directly with your reps on confidence and sales execution, strengthen your offer, and run the agreed work to generate qualified leads and meetings. We’ll then review conversion and improve the process. The offer is $10,000, with [confirmed delivery term, responsibilities, payment terms and any separate advertising/software costs].”
 
 “We’ll track qualified conversations, booked and held appointments, sales, collected revenue, and acquisition costs so we can see where the process needs improvement.”
 
