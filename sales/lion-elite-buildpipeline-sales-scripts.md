@@ -300,3 +300,74 @@ Use this version after presenting the actual offer and price. This is the select
 - If the prospect declines, respect the decision.
 - Record the exact objection, category, value driver, evidence requested/provided, unresolved concern, and next action with owner/date.
 - This addition updates the sales playbook. It does not activate campaigns, change prices, deploy software, or initiate outreach.
+
+
+## Sales 3 — Resistance to discovery questions
+
+Added November 5, 2026. Source: supplied “Sales 3.mp4” (76 seconds). Reconstructed from its visible captions and seven instructional labels; this is a close adaptation, not a verified verbatim audio transcript. Kept as one BuildPipeline script.
+
+**Placement:** Use during discovery when a prospect treats the questions as unnecessary or a waste of time. This is a conversation reset, not a price objection or closing sequence.
+
+**Prospect objection, paraphrased:** “Can you just get to the point? These questions are unnecessary. I don’t want to waste time.”
+
+### 1. Pattern interrupt
+
+“Hold on—we’ve only just started the call, and I think we need to reset the dynamic of this conversation.”
+
+*Pause. Stay composed.*
+
+### 2. Reframe answering questions from annoying to productive
+
+“The reason I’m asking is to understand whether we can help you improve your sales process, conversion rate, and profitability. If we don’t understand what’s happening in your business, how can we figure out what actually needs to change?”
+
+### 3. Takeaway / pullback
+
+“If that isn’t a conversation you want to have, we can end the call here. I don’t want to waste your time or mine.”
+
+*Make this a genuine option. If they want to stop, stop.*
+
+### 4. Identity frame
+
+“You seem like someone who wants to grow and take care of your business. But I can’t want that for you more than you want it for yourself.”
+
+*Use only goals the prospect has actually expressed. Deliver calmly, not as a challenge to their worth.*
+
+### 5. Requalify
+
+“If you want to have a productive conversation about what you need, so we can figure out whether we can even help and put a plan together, let’s do that.”
+
+“But if you don’t want to have that conversation, that’s okay too. What would you prefer?”
+
+*Wait for their answer.*
+
+**If the prospect says previous sales calls wasted their time:** Continue to step 6.
+
+**If they agree to proceed without raising past experiences:** Go directly to step 7.
+
+### 6. Shift focus from past to present
+
+“I understand that. But the people you’ve spoken with before, where you felt they wasted your time—were they me?”
+
+*Pause.*
+
+“We’ve only just started speaking. You don’t really know me yet, and I don’t know enough about your business yet. Can we judge this conversation on what we actually do here?”
+
+### 7. Transition back to process
+
+“I’ll keep it direct. I still need to understand enough about your situation to work out whether we can even help you. I’m not here to waste your time—that’s not my intention. Fair?”
+
+*Wait for agreement, then return to the last unanswered discovery question.*
+
+**BuildPipeline return-to-discovery line:**
+
+“Where are most of your clients coming from right now, and where do you feel the sales process is breaking down?”
+
+### Rep implementation
+
+- Use the reset once, then listen. Do not repeatedly challenge the prospect.
+- If the issue is limited time, agree on a shorter agenda or reschedule.
+- If they ask a direct factual question about price or scope, answer what is known; do not use discovery as a way to evade it.
+- State the purpose of the next question and ask only what is relevant.
+- If they decline, end respectfully. Record the reason and any explicitly agreed follow-up.
+- Record whether the reset led to resumed discovery, rescheduling, or a declined conversation.
+- This implements Sales 3 in the sales playbook; it does not change live software, launch outreach, or promise conversion improvements.
