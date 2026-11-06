@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import SalesDesk from "./SalesDesk";
 
 // Prospects come from the CRM, which is the system of record. The three
 // hardcoded clinics that used to live here were demo data held in browser
@@ -68,7 +69,7 @@ export default function Home() {
   const [connection, setConnection] = useState({ state: "loading", detail: "" });
   const [busy, setBusy] = useState(false);
   // The nav buttons were decorative — five labels, none of which did anything.
-  const [view, setView] = useState("Pipeline");
+  const [view, setView] = useState("Sales Desk");
   const [campaigns, setCampaigns] = useState([]);
   const [brief, setBrief] = useState(null);
   const [replyText, setReplyText] = useState("");
@@ -377,7 +378,7 @@ export default function Home() {
           <p className="muted">Automated SDR Operating System</p>
         </div>
         <nav>
-          {["Pipeline","Prospects","Campaigns","Outreach","Analytics"].map(item => (
+          {["Sales Desk","Pipeline","Prospects","Campaigns","Outreach","Analytics"].map(item => (
             <button
               key={item}
               className={`nav ${view === item ? "active" : ""}`}
@@ -410,6 +411,8 @@ export default function Home() {
           <Metric label="Contacted" value={metrics.contacted} />
           <Metric label="Calls Booked" value={metrics.meetings} />
         </div>
+
+        {view === "Sales Desk" && <SalesDesk leads={leads} selected={selected} onSelect={setSelected} connected={connection.state === "live"} onSaved={prospect => { setSelected(prospect); setLeads(current => current.map(lead => lead.id === prospect.id ? prospect : lead)); }} />}
 
         {view === "Prospects" && (
           <section className="card">
@@ -688,3 +691,4 @@ export default function Home() {
 function Metric({label, value}) {
   return <div className="metric"><span>{label}</span><strong>{value}</strong></div>;
 }
+

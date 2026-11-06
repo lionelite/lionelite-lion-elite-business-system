@@ -13,3 +13,7 @@ button.primary:disabled {
   cursor: not-allowed;
   filter: grayscale(0.6);
 }
+
+.salesDesk .offer{margin-bottom:16px}.salesDesk p{line-height:1.65}.salesDesk details{border-top:1px solid var(--line);padding:16px 0}.salesDesk summary{cursor:pointer;font-weight:700;line-height:1.5}.scriptText{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;font-size:14px;margin-top:16px}.salesDesk form{margin-top:18px}.salesDesk label input{margin-top:6px}.delivery{padding-left:22px;line-height:1.9}.salesDesk .grid{align-items:start}a{color:var(--accent)}input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:1000px){.sidebar{display:flex;position:static;height:auto;padding:16px;gap:16px}.sidebar nav{flex-direction:row;flex-wrap:wrap}.sidebar .workspace{display:none}.sidebar .muted{display:none}}
+
