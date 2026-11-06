@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
 import { pushCRMEvent } from "../../../lib/crm";
+import { crmConfigurationStatus } from "../../../lib/crm-status.mjs";
+
+export const dynamic = "force-dynamic";
+
+// Safe deployment diagnostic: no CRM requests, records, URLs or secret values.
+export async function GET() {
+  return NextResponse.json(crmConfigurationStatus(), {
+    headers: { "Cache-Control": "no-store" }
+  });
+}
 
 export async function POST(req) {
   try {
